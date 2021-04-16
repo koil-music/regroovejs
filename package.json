@@ -1,7 +1,7 @@
 {
   "name": "regroove-lib",
-  "version": "1.0.0-b1",
-  "description": "Library code for stochastic groove application",
+  "version": "1.0.0-b2",
+  "description": "Library code for regroove-m4l",
   "homepage": "https://github.com/mxkrn/regroove-lib",
   "bugs": {
     "url": "https://github.com/mxkrn/regroove-lib/issues"
