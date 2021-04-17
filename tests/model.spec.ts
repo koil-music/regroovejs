@@ -1,4 +1,5 @@
 import assert from "assert";
+import fs from 'fs';
 
 import { ONNXModel } from "../src/model";
 import { CHANNELS, LOOP_DURATION, LOCAL_MODEL_DIR } from "../src/constants";
@@ -7,9 +8,11 @@ import { testPattern } from "./helpers";
 describe("ONNXModel", function () {
   it("syncopate model is constructed correctly", async function () {
     const model = await ONNXModel.build("syncopate", LOCAL_MODEL_DIR);
-    assert.ok(model.meta.latentSize == 2);
-    assert.ok(model.meta.channels == CHANNELS);
-    assert.ok(model.meta.loopDuration == LOOP_DURATION);
+    const configData = fs.readFileSync(LOCAL_MODEL_DIR + "/syncopate.json", 'utf-8')
+    const config = JSON.parse(configData)
+    assert.ok(model.meta.latentSize == config["latentSize"]);
+    assert.ok(model.meta.channels == config["channels"]);
+    assert.ok(model.meta.loopDuration == config["loopDuration"]);
   });
   it("syncopate model properly runs forward function", async function () {
     // build model
@@ -35,9 +38,11 @@ describe("ONNXModel", function () {
   });
   it("groove model is constructed correctly", async function () {
     const model = await ONNXModel.build("groove", LOCAL_MODEL_DIR);
-    assert.ok(model.meta.latentSize == 8);
-    assert.ok(model.meta.channels == CHANNELS);
-    assert.ok((model.meta.loopDuration == LOOP_DURATION));
+    const configData = fs.readFileSync(LOCAL_MODEL_DIR + "/groove.json", 'utf-8')
+    const config = JSON.parse(configData)
+    assert.ok(model.meta.latentSize == config["latentSize"]);
+    assert.ok(model.meta.channels == config["channels"]);
+    assert.ok(model.meta.loopDuration == config["loopDuration"]);
   });
   it("groove model properly runs forward function", async function () {
     // build model
