@@ -17,7 +17,7 @@ const MAX_ONSET_THRESHOLD = 0.7
 const NUM_SAMPLES = 400
 const NOTE_DROPOUT = 0.5
 
-let ENV: string = 'production'
+let ENV: string = 'staging'
 if (typeof process.env.REGROOVE_ENV === 'string') {
   ENV = process.env.REGROOVE_ENV
 }
