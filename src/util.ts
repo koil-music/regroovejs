@@ -1,3 +1,5 @@
+import { DRUM_PITCH_CLASSES } from './constants'
+
 function signedMod (value: number, base: number): number {
   const mod = value % base
   if (mod <= base / 2) {
@@ -31,8 +33,8 @@ function zeroMatrix (shape: number[]): number[][] {
 }
 
 function pitchToIndexMap (
-  pitchMap: Record<string, number[]>,
-  indexMap: Record<string, number[]>
+  pitchMap: Record<string, number[]> = DRUM_PITCH_CLASSES.pitch,
+  indexMap: Record<string, number[]> = DRUM_PITCH_CLASSES.pitch
 ): Record<string, number> {
   const pitchIndexMap = {}
   for (const [instrument, pitches] of Object.entries(pitchMap)) {
