@@ -1,13 +1,13 @@
 import assert from "assert"
 import { performance } from "perf_hooks";
-import { CHANNELS, LOCAL_MODEL_DIR, LOOP_DURATION, MAX_ONSET_THRESHOLD, MIN_ONSET_THRESHOLD, NOTE_DROPOUT, NUM_SAMPLES } from "../src/constants";
+import { describe, it } from 'mocha'
 
+import { CHANNELS, LOCAL_MODEL_DIR, LOOP_DURATION, MAX_ONSET_THRESHOLD, MIN_ONSET_THRESHOLD, NOTE_DROPOUT, NUM_SAMPLES } from "../src/constants";
 import { Pattern, PatternSizeError } from "../src/pattern"
 import { PatternDataMatrix, applyOnsetThreshold } from "../src/generate"
 import { Generator } from "../src/generate";
-import { testPattern, arraysEqual } from "./helpers"
+import { arraysEqual } from "./helpers.ts"
 import { linspace } from "../src/util";
-import { ONNXModel } from "../src/model";
 import { Tensor } from "onnxruntime";
 
 describe("PatternDataMatrix", function() {
@@ -158,7 +158,7 @@ describe("Generator", function () {
     )
     const st = performance.now();
     await generator.run();
-    console.log("time to populate:", performance.now() - st);
+    // console.log("time to populate:", performance.now() - st);
 
     assert.strictEqual(generator.onsets.matrixSize, generator.numSamples)
     assert.strictEqual(generator.velocities.matrixSize, generator.numSamples)

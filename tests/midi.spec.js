@@ -1,8 +1,10 @@
 import assert from "assert"
+import { describe, it } from 'mocha'
+
 import { DRUM_PITCH_CLASSES, LOOP_DURATION, CHANNELS } from "../src/constants";
 import { Pattern } from "../src/pattern";
 import { readMidiFile, writeMidiFile } from "../src/midi";
-import { arraysEqual } from "./helpers";
+import { arraysEqual } from "./helpers.ts";
 import { pitchToIndexMap } from "../src/util";
 
 describe("read/writeMidiFile", function() {

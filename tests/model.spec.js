@@ -1,9 +1,10 @@
 import assert from "assert";
 import fs from 'fs';
+import { describe, it } from 'mocha'
 
 import { ONNXModel } from "../src/model";
-import { CHANNELS, LOOP_DURATION, LOCAL_MODEL_DIR } from "../src/constants";
-import { testPattern } from "./helpers";
+import { LOCAL_MODEL_DIR } from "../src/constants";
+import { testPattern } from "./helpers.ts";
 
 describe("ONNXModel", function () {
   it("syncopate model is constructed correctly", async function () {

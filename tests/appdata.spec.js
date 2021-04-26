@@ -1,13 +1,15 @@
 import assert from 'assert'
 import { readFileSync, writeFileSync } from 'fs'
 import path from 'path'
+import process from 'process'
+import { describe, it } from 'mocha'
 
 import { AppData } from '../src/appdata'
-import { testPattern } from './helpers'
+import { testPattern } from './helpers.ts'
 
-describe("AppData", function () {
+describe('AppData', function () {
   const fileExt = '.mid'
-  const dataPath = path.join(__dirname, 'fixtures')
+  const dataPath = path.join(process.cwd(), 'tests/fixtures')
   const appData = new AppData(dataPath, fileExt)
   it("checks constructor", function() {
     assert.ok(appData._rootPath === dataPath + '/.data')
