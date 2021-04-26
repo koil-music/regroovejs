@@ -4,7 +4,7 @@ import path from 'path'
 import process from 'process'
 import { describe, it } from 'mocha'
 
-import { AppData, FileMeta } from '../appdata'
+import { AppData } from '../appdata'
 import { testPattern, arraysEqual } from './helpers.ts'
 
 describe('AppData', function () {

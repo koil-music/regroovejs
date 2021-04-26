@@ -15,7 +15,7 @@ describe("PatternDataMatrix", function() {
   const expectedShape = [1, LOOP_DURATION, CHANNELS]
   let length = 10
   const dataMatrix = new PatternDataMatrix(expectedShape, length)
-  const pattern = Float32Array.from({ length: expectedShape[1] * expectedShape[2] }, _ => {
+  const pattern = Float32Array.from({ length: expectedShape[1] * expectedShape[2] }, () => {
     return 1
   })
 
@@ -34,7 +34,7 @@ describe("PatternDataMatrix", function() {
     assert.strictEqual(emptyDataMatrix.length, length)
     assert.strictEqual(emptyDataMatrix[0].length, length)
     assert.strictEqual(emptyDataMatrix[0][0].length, LOOP_DURATION * CHANNELS)
-    assert.ok(arraysEqual(Array.from(emptyDataMatrix[0][0]), Array.from({ length: LOOP_DURATION * CHANNELS }, _ => 0.)))
+    assert.ok(arraysEqual(Array.from(emptyDataMatrix[0][0]), Array.from({ length: LOOP_DURATION * CHANNELS }, () => 0.)))
   }),
   it("appends correct patterns", function() {
     for (let i = 0; i < length; i++) {
@@ -54,7 +54,7 @@ describe("PatternDataMatrix", function() {
     let i = 1
     let j = 1
     const invalidLength = expectedShape[1] * expectedShape[2] + 1
-    const invalidPattern = Float32Array.from({ length: invalidLength }, _ => {
+    const invalidPattern = Float32Array.from({ length: invalidLength }, () => {
       return 1
     })
     assert.throws(function() {dataMatrix.append(invalidPattern, i, j)}, PatternSizeError)
@@ -67,7 +67,7 @@ describe("PatternDataMatrix", function() {
 })
 
 describe("Generator", function () {
-  const onsetsData = Float32Array.from({ length: LOOP_DURATION * CHANNELS }, _ => 1.)
+  const onsetsData = Float32Array.from({ length: LOOP_DURATION * CHANNELS }, () => 1.)
   const velocitiesData = Float32Array.from(onsetsData).fill(0.5)
   const offsetsData = Float32Array.from(onsetsData).fill(0.)
   const expectedDims = [1, LOOP_DURATION, CHANNELS]

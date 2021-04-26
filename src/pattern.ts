@@ -15,7 +15,7 @@ class PatternSizeError extends Error {
 }
 
 function transpose2d (matrix: MatrixType): MatrixType {
-  return matrix[0].map((_, i) => matrix.map(row => row[i]))
+  return matrix[0].map((v, i) => matrix.map(row => row[i]))
 }
 
 export { transpose2d, TensorType, MatrixType, FLOAT32 }
@@ -66,16 +66,16 @@ class Pattern extends BasePattern implements IPattern {
 
   static empty (dims: readonly number[]): TensorType {
     assert.ok(dims.length === 3)
-    return Array.from({ length: dims[0] }, _ => {
-      return Array.from({ length: dims[1] }, _ => [])
+    return Array.from({ length: dims[0] }, () => {
+      return Array.from({ length: dims[1] }, () => [])
     })
   }
 
   static zeros (dims: readonly number[]): TensorType {
     assert.ok(dims.length === 3)
-    return Array.from({ length: dims[0] }, _ => {
-      return Array.from({ length: dims[1] }, _ => {
-        return Array.from({ length: dims[2] }, _ => 0.0)
+    return Array.from({ length: dims[0] }, () => {
+      return Array.from({ length: dims[1] }, () => {
+        return Array.from({ length: dims[2] }, () => 0.0)
       })
     })
   }

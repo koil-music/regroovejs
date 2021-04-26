@@ -22,12 +22,12 @@ function scale (
 }
 
 function zeroArray (size: number): number[] {
-  return Array.from({ length: size }, _ => 0.0)
+  return Array.from({ length: size }, () => 0.0)
 }
 
 function zeroMatrix (shape: number[]): number[][] {
-  return Array.from({ length: shape[0] }, (_) => {
-    const array = Array.from({ length: shape[1] }, (_) => 0)
+  return Array.from({ length: shape[0] }, () => {
+    const array = Array.from({ length: shape[1] }, () => 0)
     return array
   })
 }
