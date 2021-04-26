@@ -20,16 +20,14 @@ jobs:
         npm run lint
   test:
     runs-on: ${{ matrix.os }}
-    needs: test_lint
+    needs:
+      - test_lint
     strategy:
       matrix:
-        node: [ '14', '13', '12', '11', '10' ]
-        os: [ windows-latest, ubuntu-latest ]
+        node: [ '14', '12', '10' ]
+        os: [ ubuntu-latest ]
     name: Test with Node v${{ matrix.node }} on ${{ matrix.os }}
     steps:
-    - name: Update regroove-models submodule
-      run: |
-        git submodule update --init --recursive
     - name: Tell if project is using npm or yarn
       id: step1
       uses: garronej/github_actions_toolkit@v2.2
@@ -40,7 +38,10 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
     - if: steps.step1.outputs.npm_or_yarn == 'npm'
+      env:
+        SSH_KEY_REGROOVE_MODELS: ${{secrets.SSH_KEY_REGROOVE_MODELS}}
       run: |
+        mkdir $HOME/.ssh && echo "$SSH_KEY_REGROOVE_MODELS" > $HOME/.ssh/id_rsa && chmod 600 $HOME/.ssh/id_rsa && git submodule update --init --recursive
         npm ci
         npm run build
         npm test
