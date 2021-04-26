@@ -2,8 +2,8 @@ import assert from "assert";
 import fs from 'fs';
 import { describe, it } from 'mocha'
 
-import { ONNXModel } from "../src/model";
-import { LOCAL_MODEL_DIR } from "../src/constants";
+import { ONNXModel } from "../model";
+import { LOCAL_MODEL_DIR } from "../constants";
 import { testPattern } from "./helpers.ts";
 
 describe("ONNXModel", function () {

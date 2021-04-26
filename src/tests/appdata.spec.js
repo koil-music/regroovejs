@@ -4,12 +4,12 @@ import path from 'path'
 import process from 'process'
 import { describe, it } from 'mocha'
 
-import { AppData } from '../src/appdata'
+import { AppData } from '../appdata'
 import { testPattern } from './helpers.ts'
 
 describe('AppData', function () {
   const fileExt = '.mid'
-  const dataPath = path.join(process.cwd(), 'tests/fixtures')
+  const dataPath = path.join(process.cwd(), 'src/tests/fixtures')
   const appData = new AppData(dataPath, fileExt)
   it("checks constructor", function() {
     assert.ok(appData._rootPath === dataPath + '/.data')
@@ -18,12 +18,12 @@ describe('AppData', function () {
   })
   it("check factory data", async function () {
     const expectedName = 'factory1'
-    const expectedPath = process.cwd() + '/tests/fixtures/.data/factory/factory1.mid'
+    const expectedPath = process.cwd() + 'src/tests/fixtures/.data/factory/factory1.mid'
     assert.ok(appData._indexData[expectedName] = {name: expectedName, path: expectedPath, parent: 'factory'})
   })
   it("check user data", function () {
     const expectedName = 'user1'
-    const expectedPath = process.cwd() + '/tests/fixtures/.data/factory/user1.mid'
+    const expectedPath = process.cwd() + 'src/tests/fixtures/.data/factory/user1.mid'
     assert.ok(appData._indexData[expectedName] = {name: expectedName, path: expectedPath, parent: 'user'})
   })
   it("saves index", function() {
@@ -55,7 +55,7 @@ describe('AppData', function () {
     const gotFileMeta = appData._indexData[expectedName]
     assert.ok(gotFileMeta.name === expectedName)
     assert.ok(gotFileMeta.parent === 'user')
-    assert.ok(gotFileMeta.path === process.cwd() + '/tests/fixtures/.data/user/test1.mid')
+    assert.ok(gotFileMeta.path === process.cwd() + '/src/tests/fixtures/.data/user/test1.mid')
 
     // reset in-memory index data
     appData._indexData = beforeIndexData

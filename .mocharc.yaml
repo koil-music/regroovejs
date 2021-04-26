@@ -3,5 +3,5 @@ extension:
   - "js"
 reporter: "spec"
 require: "ts-node/register"
-spec: "tests/*.spec.js"
+spec: "src/tests/*.spec.js"
 timeout: 10000

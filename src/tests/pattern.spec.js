@@ -1,10 +1,10 @@
 import assert from "assert";
 import { describe, it } from 'mocha'
 
-import { Pattern } from "../src/pattern";
-import { transpose2d } from "../src/pattern";
+import { Pattern } from "../pattern";
+import { transpose2d } from "../pattern";
 import { arraysEqual, testPattern } from "./helpers.ts";
-import { LOOP_DURATION, CHANNELS } from "../src/constants";
+import { LOOP_DURATION, CHANNELS } from "../constants";
 
 
 describe("Pattern", function() {

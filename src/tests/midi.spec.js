@@ -1,11 +1,11 @@
 import assert from "assert"
 import { describe, it } from 'mocha'
 
-import { DRUM_PITCH_CLASSES, LOOP_DURATION, CHANNELS } from "../src/constants";
-import { Pattern } from "../src/pattern";
-import { readMidiFile, writeMidiFile } from "../src/midi";
+import { DRUM_PITCH_CLASSES, LOOP_DURATION, CHANNELS } from "../constants";
+import { Pattern } from "../pattern";
+import { readMidiFile, writeMidiFile } from "../midi";
 import { arraysEqual } from "./helpers.ts";
-import { pitchToIndexMap } from "../src/util";
+import { pitchToIndexMap } from "../util";
 
 describe("read/writeMidiFile", function() {
   const dims = [1, LOOP_DURATION, CHANNELS]
