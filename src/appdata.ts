@@ -39,8 +39,8 @@ class AppData implements IAppData {
       if (err != null) throw err
       const indexData = JSON.parse(data)
       index = this._loadIndexFromJSON(indexData)
+      this._indexData = this._loadFactoryIndexData(index)
     }.bind(this))
-    this._indexData = this._loadFactoryIndexData(index)
   }
 
   saveIndex (): void {
