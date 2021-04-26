@@ -21,7 +21,7 @@ let ENV = 'staging'
 if (typeof process.env.REGROOVE_ENV === 'string') {
   ENV = process.env.REGROOVE_ENV
 }
-const LOCAL_MODEL_DIR = path.dirname(__dirname) + `/regroove-models/${ENV}/`
+const LOCAL_MODEL_DIR = path.join(process.cwd(), `/regroove-models/${ENV}/`)
 
 export {
   DRUM_PITCH_CLASSES,

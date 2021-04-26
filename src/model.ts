@@ -1,7 +1,7 @@
 import fs from 'fs'
+import path from 'path'
 
 import { InferenceSession, Tensor } from 'onnxruntime'
-import { LOCAL_MODEL_DIR } from './constants'
 import { zeroArray } from './util'
 import { Pattern } from './pattern'
 import { stringify } from 'querystring'
@@ -14,8 +14,8 @@ interface ModelMeta {
   loopDuration: number
 }
 
-function loadMeta (name: string): ModelMeta {
-  const data = fs.readFileSync(LOCAL_MODEL_DIR + `${name}.json`, 'utf-8')
+function loadMeta (modelDir: string, name: string): ModelMeta {
+  const data = fs.readFileSync(path.join(modelDir, `${name}.json`), 'utf-8')
   return JSON.parse(data)
 }
 
@@ -30,8 +30,8 @@ class ModelType {
     this._models = {}
     this._modelDir = modelDir
 
-    this._models.syncopate = loadMeta('syncopate')
-    this._models.groove = loadMeta('groove')
+    this._models.syncopate = loadMeta(modelDir, 'syncopate')
+    this._models.groove = loadMeta(modelDir, 'groove')
     this._models.syncopate.path = this.modelDir + 'syncopate.onnx'
     this._models.groove.path = this.modelDir + 'groove.onnx'
 
