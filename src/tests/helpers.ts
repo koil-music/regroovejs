@@ -1,11 +1,11 @@
-import { pitchToIndexMap } from "../src/util";
-import { DRUM_PITCH_CLASSES } from "../src/constants";
-import { Pattern } from "../src/pattern";
-import { readMidiFile } from "../src/midi";
+import { pitchToIndexMap } from "../util";
+import { DRUM_PITCH_CLASSES } from "../constants";
+import { Pattern } from "../pattern";
+import { readMidiFile } from "../midi";
 
 
 async function testPattern(): Promise<[Pattern, Pattern, Pattern]> {
-  const filePath = "tests/fixtures/Variation_02.mid";
+  const filePath = "src/tests/fixtures/Variation_02.mid";
   const pitchMapping = pitchToIndexMap(
     DRUM_PITCH_CLASSES["pitch"],
     DRUM_PITCH_CLASSES["index"]

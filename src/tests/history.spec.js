@@ -1,8 +1,8 @@
 import assert from "assert"
 import { describe, it } from 'mocha'
 
-import { PatternHistory } from "../src/history"
-import { Pattern } from "../src/pattern";
+import { PatternHistory } from "../history"
+import { Pattern } from "../pattern";
 import { arraysEqual } from "./helpers.ts"
 
 

@@ -2,12 +2,12 @@ import assert from "assert"
 import { performance } from "perf_hooks";
 import { describe, it } from 'mocha'
 
-import { CHANNELS, LOCAL_MODEL_DIR, LOOP_DURATION, MAX_ONSET_THRESHOLD, MIN_ONSET_THRESHOLD, NOTE_DROPOUT, NUM_SAMPLES } from "../src/constants";
-import { Pattern, PatternSizeError } from "../src/pattern"
-import { PatternDataMatrix, applyOnsetThreshold } from "../src/generate"
-import { Generator } from "../src/generate";
+import { CHANNELS, LOCAL_MODEL_DIR, LOOP_DURATION, MAX_ONSET_THRESHOLD, MIN_ONSET_THRESHOLD, NOTE_DROPOUT, NUM_SAMPLES } from "../constants";
+import { Pattern, PatternSizeError } from "../pattern"
+import { PatternDataMatrix, applyOnsetThreshold } from "../generate"
+import { Generator } from "../generate";
 import { arraysEqual } from "./helpers.ts"
-import { linspace } from "../src/util";
+import { linspace } from "../util";
 import { Tensor } from "onnxruntime";
 
 describe("PatternDataMatrix", function() {
