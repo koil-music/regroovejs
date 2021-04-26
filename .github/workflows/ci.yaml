@@ -27,6 +27,9 @@ jobs:
         os: [ windows-latest, ubuntu-latest ]
     name: Test with Node v${{ matrix.node }} on ${{ matrix.os }}
     steps:
+    - name: Update regroove-models submodule
+      run: |
+        git submodule update --init --recursive
     - name: Tell if project is using npm or yarn
       id: step1
       uses: garronej/github_actions_toolkit@v2.2
