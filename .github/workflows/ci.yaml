@@ -59,3 +59,33 @@ jobs:
       id: step1
       with:
         action_name: is_package_json_version_upgraded
+  publish:
+    runs-on: ubuntu-latest
+    needs:
+      - check_if_version_upgraded
+    steps:
+      - uses: actions/checkout@v2.3.4
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/setup-node@v2.1.3
+        with:
+          node-version: '12'
+      - run: |
+        npm ci
+        npm run build
+      - name: Publish to NPM
+      - run: |
+        if [ "$(npm show . version)" = "$VERSION"  ]; then
+          echo "This version is already published"
+          exit 0
+        fi
+        if [ "$NPM_TOKEN" = "" ]; then
+          echo "Can't publish on NPM, You must first create a secret called NPM_TOKEN that contains your NPM auth token. https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets"
+          false
+        fi
+        echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
+        npm publish
+        rm .npmrc
+      env:
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        VERSION: ${{ needs.check_if_version_upgraded.outputs.to_version }}
