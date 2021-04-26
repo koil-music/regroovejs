@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/images/logo_dark_padded_transparent.png" style="height: 20rem; width: auto;">
+  <img src="./assets/images/logo_dark_padded_transparent.png" style="height: 15rem; width: auto;">
 </p>
 <p align="center">
     <i>Generate expressive drum grooves</i>

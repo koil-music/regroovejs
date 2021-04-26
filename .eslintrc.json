@@ -17,7 +17,9 @@
     ],
     "rules": {
     },
-    "include": [
-      "./tests/*.js"
+    "overrides": [
+      {
+        "files": ["./tests/*.js"]
+      }
     ]
 }
