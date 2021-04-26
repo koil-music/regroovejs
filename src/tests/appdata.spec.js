@@ -1,11 +1,11 @@
 import assert from 'assert'
-import { readFileSync, writeFileSync } from 'fs'
+import { readFileSync, writeFileSync, unlinkSync } from 'fs'
 import path from 'path'
 import process from 'process'
 import { describe, it } from 'mocha'
 
-import { AppData } from '../appdata'
-import { testPattern } from './helpers.ts'
+import { AppData, FileMeta } from '../appdata'
+import { testPattern, arraysEqual } from './helpers.ts'
 
 describe('AppData', function () {
   const fileExt = '.mid'
@@ -59,5 +59,29 @@ describe('AppData', function () {
 
     // reset in-memory index data
     appData._indexData = beforeIndexData
+  })
+  it('loads patterns', async function() {
+    const expectedName = 'test2'
+    if (~appData._indexData[expectedName] === undefined) {
+      unlinkSync(appData._indexData[expectedName].path)
+    }
+    const [expectedOnsets, expectedVelocities, expectedOffsets] = await testPattern()
+    await appData.savePattern(expectedOnsets, expectedVelocities, expectedOffsets, expectedName)
+  
+    const [gotOnsets, gotVelocities, gotOffsets] = await appData.loadPattern(expectedName)
+    let expected = Array.from(expectedOnsets.data)
+    let got = Array.from(gotOnsets.data)
+    assert.ok(arraysEqual(expected, got))
+
+    expected = Array.from(expectedVelocities.data)
+    got = Array.from(gotVelocities.data)
+    assert.ok(arraysEqual(expected, got))
+
+    // TODO: Fix offset MIDI parsing
+    // expected = Array.from(expectedOffsets.data)
+    // got = Array.from(gotOffsets.data)
+    // assert.ok(arraysEqual(expected, got))
+
+    unlinkSync(appData._indexData[expectedName].path)
   })
 })

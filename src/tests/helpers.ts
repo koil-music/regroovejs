@@ -1,11 +1,11 @@
-import { pitchToIndexMap } from "../util";
+import { pitchToIndexMap, round } from "../util";
 import { DRUM_PITCH_CLASSES } from "../constants";
 import { Pattern } from "../pattern";
 import { readMidiFile } from "../midi";
 
 
 async function testPattern(): Promise<[Pattern, Pattern, Pattern]> {
-  const filePath = "src/tests/fixtures/Variation_02.mid";
+  const filePath = "src/tests/fixtures/Variation_01.mid";
   const pitchMapping = pitchToIndexMap(
     DRUM_PITCH_CLASSES["pitch"],
     DRUM_PITCH_CLASSES["index"]
@@ -42,11 +42,13 @@ function arraysEqual(a, b): boolean {
                     if (aValue !== bValue) return false;   
                 }
             } else {
-                if (a[i][j] !== b[i][j]) return false;
+                if (round(a[i][j], 6) !== round(b[i][j], 6)) return false;
             }
         }
     } else {
-        if (a[i] !== b[i]) return false;
+        if (a[i] !== b[i]) {
+          return false
+        }
     }
   }
   return true;

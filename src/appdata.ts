@@ -87,9 +87,10 @@ class AppData implements IAppData {
 
   async loadPattern (name: string): Promise<[Pattern, Pattern, Pattern]> {
     const filePath = this._indexData[name].path
-    const [onsets, velocities, offsets] = await readMidiFile(filePath, pitchToIndexMap())
+    const pitchMapping = pitchToIndexMap()
+    const [onsets, velocities, offsets] = await readMidiFile(filePath, pitchMapping)
     return [onsets, velocities, offsets]
   }
 }
 
-export { AppData }
+export { AppData, FileMeta }

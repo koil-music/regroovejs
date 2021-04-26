@@ -34,7 +34,7 @@ function zeroMatrix (shape: number[]): number[][] {
 
 function pitchToIndexMap (
   pitchMap: Record<string, number[]> = DRUM_PITCH_CLASSES.pitch,
-  indexMap: Record<string, number[]> = DRUM_PITCH_CLASSES.pitch
+  indexMap: Record<string, number[]> = DRUM_PITCH_CLASSES.index
 ): Record<string, number> {
   const pitchIndexMap = {}
   for (const [instrument, pitches] of Object.entries(pitchMap)) {
