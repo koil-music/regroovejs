@@ -59,23 +59,26 @@ jobs:
       id: step1
       with:
         action_name: is_package_json_version_upgraded
-  publish:
+  publish_on_npm:
     runs-on: ubuntu-latest
     needs:
       - check_if_version_upgraded
     steps:
-      - uses: actions/checkout@v2.3.4
-        with:
-          ref: ${{ github.ref }}
-      - uses: actions/setup-node@v2.1.3
-        with:
-          node-version: '12'
-      - run: |
+    - uses: actions/checkout@v2.3.4
+      with:
+        ref: ${{ github.ref }}
+    - uses: actions/setup-node@v2.1.3
+      with:
+        node-version: '15'
+    - run: |
         npm ci
         npm run build
-      - name: Publish to NPM
-      - run: |
-        if [ "$(npm show . version)" = "$VERSION"  ]; then
+    - run: npx -y -p denoify@0.6.5 denoify_enable_short_npm_import_path
+      env:
+        DRY_RUN: "0"
+    - name: Publishing on NPM
+      run: |
+        if [ "$(npm show . version)" = "$VERSION" ]; then
           echo "This version is already published"
           exit 0
         fi
