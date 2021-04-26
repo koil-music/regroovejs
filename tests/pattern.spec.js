@@ -108,8 +108,8 @@ describe("Pattern", function() {
       assert.ok(offsetsPattern.data.length == CHANNELS * LOOP_DURATION);
   
       // const isBinary = (v: number) => v == 1.0 || v == 0.0;
-      const velocityInRange = (v: number) => v <= 1.0 && v >= 0.0;
-      const offsetsInRange = (v: number) => v <= 1.0 && v >= -1.0;
+      const velocityInRange = (v) => v <= 1.0 && v >= 0.0;
+      const offsetsInRange = (v) => v <= 1.0 && v >= -1.0;
   
       for (let i = 0; i < offsetsPattern.data.length; i++) {
         assert.ok(

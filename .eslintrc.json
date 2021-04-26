@@ -16,5 +16,8 @@
         "@typescript-eslint"
     ],
     "rules": {
-    }
+    },
+    "include": [
+      "./tests/*.js"
+    ]
 }

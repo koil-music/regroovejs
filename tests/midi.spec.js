@@ -11,7 +11,7 @@ describe("read/writeMidiFile", function() {
   const velocitiesPattern = new Pattern(new Float32Array(dims[1] * dims[2]), dims)
   const offsetsPattern = new Pattern(new Float32Array(dims[1] * dims[2]), dims)
 
-  const fillCells: number[][] = []
+  const fillCells = []
   for (let i = 0; i < LOOP_DURATION; i++) {
     let v = [i, i % 9]
     fillCells.push(v)

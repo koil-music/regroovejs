@@ -12,7 +12,7 @@ import { Tensor } from "onnxruntime";
 
 describe("PatternDataMatrix", function() {
 
-  const expectedShape: [number, number, number] = [1, LOOP_DURATION, CHANNELS]
+  const expectedShape = [1, LOOP_DURATION, CHANNELS]
   let length = 10
   const dataMatrix = new PatternDataMatrix(expectedShape, length)
   const pattern = Float32Array.from({ length: expectedShape[1] * expectedShape[2] }, _ => {
