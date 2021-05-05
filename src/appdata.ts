@@ -35,12 +35,10 @@ class AppData implements IAppData {
     this._indexPath = this._rootPath + '/.index.json'
     let index = {}
 
-    fs.readFile(this._indexPath, 'utf-8', function (err, data: string) {
-      if (err != null) throw err
-      const indexData = JSON.parse(data)
-      index = this._loadIndexFromJSON(indexData)
-      this._indexData = this._loadFactoryIndexData(index)
-    }.bind(this))
+    const data = fs.readFileSync(this._indexPath, 'utf-8')
+    const indexData = JSON.parse(data)
+    index = this._loadIndexFromJSON(indexData)
+    this._indexData = this._loadFactoryIndexData(index)
   }
 
   saveIndex (): void {
