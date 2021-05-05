@@ -79,6 +79,10 @@ class AppData implements IAppData {
     return this._rootPath + '/user/'
   }
 
+  get data (): Record<string, FileMeta> {
+    return this._indexData
+  }
+
   async savePattern (onsets: Pattern, velocities: Pattern, offsets: Pattern, name: string): Promise<void> {
     const savePath = this.userDir + `${name}.mid`
     this._save(name, savePath)
@@ -86,6 +90,7 @@ class AppData implements IAppData {
   }
 
   async loadPattern (name: string): Promise<[Pattern, Pattern, Pattern]> {
+    // TODO: Implement error handling if name doesn't exist
     const filePath = this._indexData[name].path
     const pitchMapping = pitchToIndexMap()
     const [onsets, velocities, offsets] = await readMidiFile(filePath, pitchMapping)
