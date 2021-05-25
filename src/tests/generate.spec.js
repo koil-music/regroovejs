@@ -1,5 +1,8 @@
 import assert from "assert"
-import { performance } from "perf_hooks";
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
+import { performance } from "perf_hooks"
 import { describe, it } from 'mocha'
 
 import { CHANNELS, LOCAL_MODEL_DIR, LOOP_DURATION, MAX_ONSET_THRESHOLD, MIN_ONSET_THRESHOLD, NOTE_DROPOUT, NUM_SAMPLES } from "../constants";
@@ -11,7 +14,6 @@ import { linspace } from "../util";
 import { Tensor } from "onnxruntime";
 
 describe("PatternDataMatrix", function() {
-
   const expectedShape = [1, LOOP_DURATION, CHANNELS]
   let length = 10
   const dataMatrix = new PatternDataMatrix(expectedShape, length)
@@ -34,7 +36,11 @@ describe("PatternDataMatrix", function() {
     assert.strictEqual(emptyDataMatrix.length, length)
     assert.strictEqual(emptyDataMatrix[0].length, length)
     assert.strictEqual(emptyDataMatrix[0][0].length, LOOP_DURATION * CHANNELS)
-    assert.ok(arraysEqual(Array.from(emptyDataMatrix[0][0]), Array.from({ length: LOOP_DURATION * CHANNELS }, () => 0.)))
+    for (let i = 0; i < length; i++) {
+      for (let j = 0; j < length; j++) {
+        assert.ok(arraysEqual(Array.from(emptyDataMatrix[i][j]), Array.from({ length: LOOP_DURATION * CHANNELS }, () => 0.)))
+      }
+    }
   }),
   it("appends correct patterns", function() {
     for (let i = 0; i < length; i++) {
@@ -64,6 +70,13 @@ describe("PatternDataMatrix", function() {
     let j = 1
     assert.throws(function() {dataMatrix.sample(i, j)}, TypeError)
   })
+  it("gets and sets data", function() {
+    const testDataMatrix = dataMatrix.empty()
+    const expectedData = Array.from({ length: LOOP_DURATION * CHANNELS }, () => 1.)
+    // assert.ok(arraysEqual(Array.from(testDataMatrix.data), Array.from(expectedData)))
+    testDataMatrix[0][0] = Array.from({ length: LOOP_DURATION * CHANNELS }, () => 1.)
+    assert.ok(arraysEqual(Array.from(testDataMatrix[0][0]), Array.from(expectedData)))
+  })
 })
 
 describe("Generator", function () {
@@ -83,7 +96,7 @@ describe("Generator", function () {
 
     // assert.strictEqual(typeof generator.model, ONNXModel)
     const got = generator.minOnsetThreshold
-    assert.strictEqual(generator.minOnsetThreshold, MIN_ONSET_THRESHOLD)
+    assert.strictEqual(got, MIN_ONSET_THRESHOLD)
     const minThreshold = 0.1
     generator.minOnsetThreshold = minThreshold
     assert.strictEqual(generator.minOnsetThreshold, minThreshold)
@@ -148,7 +161,7 @@ describe("Generator", function () {
     const onsetsPattern = new Pattern(onsetsData, dims)
     const expectedBatchedInputSize = Math.sqrt(NUM_SAMPLES)*LOOP_DURATION*CHANNELS*3
     assert.strictEqual(expectedBatchedInputSize, generator.batchedInput(onsetsPattern, Math.sqrt(NUM_SAMPLES)).data.length)
-  })
+  }),
   it("builds and initializes methods and variables", async function () {
     const generator = await Generator.build(
       onsetsData,
@@ -156,9 +169,7 @@ describe("Generator", function () {
       offsetsData,
       LOCAL_MODEL_DIR
     )
-    const st = performance.now();
     await generator.run();
-    // console.log("time to populate:", performance.now() - st);
 
     assert.strictEqual(generator.onsets.matrixSize, generator.numSamples)
     assert.strictEqual(generator.velocities.matrixSize, generator.numSamples)
@@ -170,7 +181,46 @@ describe("Generator", function () {
         assert.strictEqual(onsets.sample(i, j).length, onsetsData.length)
       }
     }
-  });
+  }),
+  it("saves and loads data", async function() {
+    const generator = await Generator.build(
+      onsetsData,
+      velocitiesData,
+      offsetsData,
+      LOCAL_MODEL_DIR
+    )
+    await generator.run();
+
+    // save and load a different PatternDataMatrix
+    const expectedShape = [1, LOOP_DURATION, CHANNELS]
+    let length = 10
+    const dataMatrix = new PatternDataMatrix(expectedShape, length)
+    const testDataMatrix = dataMatrix.empty()
+    const ones = Array.from({ length: LOOP_DURATION * CHANNELS }, () => 1.)
+    testDataMatrix[0][0] = ones;
+    
+    // assign different PatternDataMatrix to generator
+    generator.onsets = testDataMatrix;
+    generator.velocities = testDataMatrix;
+    generator.offsets = testDataMatrix;
+
+    // load generator state into gotGenerator
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tmp-'))
+    const filepath = path.join(dir, 'test.rgstate')
+
+    await generator.save(filepath)
+    const gotGenerator = await Generator.build(
+      onsetsData,
+      velocitiesData,
+      offsetsData,
+      LOCAL_MODEL_DIR
+    )
+    await gotGenerator.load(filepath)
+
+    assert.ok(arraysEqual(Array.from(testDataMatrix[0][0]), Array.from(gotGenerator.onsets.data[0][0])))
+    assert.ok(arraysEqual(Array.from(testDataMatrix), Array.from(gotGenerator.velocities.data)))
+    assert.ok(arraysEqual(Array.from(testDataMatrix), Array.from(gotGenerator.offsets.data)))
+  })
 });
 
 describe("applyOnsetThreshold", function() {
@@ -179,11 +229,11 @@ describe("applyOnsetThreshold", function() {
     const expectedDims = [1, 4, 2]
     data.fill(0.5)
     let gotPattern = applyOnsetThreshold(new Tensor("float32", data, expectedDims), expectedDims, 0.4)
-    let expected = Array.from({ length: 8 }, _ => 1.)
+    let expected = Array.from({ length: 8 }, () => 1.)
     assert.ok(arraysEqual(Array.from(gotPattern.data), expected))
 
     data.fill(0.3)
     gotPattern = applyOnsetThreshold(new Tensor("float32", data, expectedDims), expectedDims, 0.4)
-    expected = Array.from({ length: 8 }, _ => 0.)
+    expected = Array.from({ length: 8 }, () => 0.)
     assert.ok(arraysEqual(Array.from(gotPattern.data), expected))
   }) })

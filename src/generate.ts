@@ -1,3 +1,6 @@
+import fs from 'fs'
+import { promisify } from 'util'
+
 import { Tensor } from 'onnxruntime'
 import { ONNXModel } from './model'
 import { Pattern, PatternSizeError } from './pattern'
@@ -10,6 +13,9 @@ import {
   NOTE_DROPOUT
 } from './constants'
 import { linspace } from './util'
+
+const asyncReadFile = promisify(fs.readFile)
+const asyncWriteFile = promisify(fs.writeFile)
 
 class PatternDataMatrix {
   /**
@@ -24,10 +30,10 @@ class PatternDataMatrix {
     this._length = length
     this._T = this.empty()
   }
-
+  
   empty (): Float32Array[][] {
-    return Array.from({ length: this.length }, _ => {
-      return Array.from({ length: this.length }, _ => {
+    return Array.from({ length: this.length }, () => {
+      return Array.from({ length: this.length }, () => {
         return new Float32Array(this.outputSize)
       })
     })
@@ -48,6 +54,14 @@ class PatternDataMatrix {
 
   get outputSize (): number {
     return this.outputShape[0] * this.outputShape[1] * this.outputShape[2]
+  }
+
+  get data (): Float32Array[][] {
+    return this._T
+  }
+
+  set data (d: Float32Array[][]) {
+    this._T = d
   }
 
   append (p: Float32Array, i: number, j: number): void {
@@ -72,36 +86,40 @@ class Generator {
    * This class wraps our loaded ONNX syncopateModel and fills an Object (data)
    * with predicted patterns
    *
-   * @syncopateModel           Instance of ONNXModel
-   * @onsets          Onsets array to be used as input; must be a
-                      flat Typed buffer
-   * @velocities      Velocities array to be used as input; must be a
-                      flat Typed buffer
-   * @offsets         Offsets array to be used as input; must be a
-                      flat Typed buffer
-   * @numSamples      Number of samples to generate - the sqrt is taken and the
-                      result rounded and used as the axis size of the pattern grid
-   * @noteDropout     Mean note dropout probability
-   * @noteDropoutVar  Variance around mean note dropout probability
-   * @channels        Number of channels in input sequence a.k.a. instruments
-   * @loopDuration    Length of sequence loop in 16th notes
+   * @syncopateModel          Instance of ONNXModel trained for syncopating patterns
+   * @grooveModel             Instance of ONNXModel trained for grooving patterns
+   * @onsetsPattern           Instance of Pattern to be used as input onsets
+   * @velocitiesPattern       Instance of Pattern to be used as input velocities
+   * @offsetsPattern          Instance of Pattern to be used as input offsets
+   * @_dims                   Tuple of matrix dimension sizes for row of generator data
+   * @_channels               Number of channels in a Pattern
+   * @_loopDuration           Number of sequence steps in a Pattern
+   * @_outputShape            Tuple of matrix dimensions sizes for ONE instance of Pattern
+   * @_numSamples             Number of samples to generate - the sqrt is taken and the
+                              result rounded and used as the axis size of the pattern grid
+   * @_noteDropout            Mean note dropout probability
+   * @_min/maxNoteDropout     Variance around mean note dropout probability
+   * @_minOnsetThreshold      Minimum onset threshold value for generated samples
+   * @_maxOnsetThreshold      Maximum onset threshold value for generated samples
+   * @_onsetsDataMatrix       Instance of PatternSizeError containing onsets data
+   * @_velocitiesDataMatrix   Instance of PatternDataMatrix containing velocities data
+   * @_offsetsDataMatrix      Instance of PatternDataMatrix containing offsets data
    */
   syncopateModel: ONNXModel
   grooveModel: ONNXModel
-  _channels: number
-  _loopDuration: number
-  _outputShape: [number, number, number]
-  _dims: number[]
   onsetsPattern: Pattern
   velocitiesPattern: Pattern
   offsetsPattern: Pattern
+  _dims: number[]
+  _channels: number
+  _loopDuration: number
+  _outputShape: [number, number, number]
   _numSamples: number
   _noteDropout: number
   _minNoteDropout: number
   _maxNoteDropout: number
   _minOnsetThreshold: number
   _maxOnsetThreshold: number
-  _gridSize: number
   _onsetsDataMatrix: PatternDataMatrix
   _velocitiesDataMatrix: PatternDataMatrix
   _offsetsDataMatrix: PatternDataMatrix
@@ -223,12 +241,24 @@ class Generator {
     return this._onsetsDataMatrix
   }
 
+  set onsets (matrix: PatternDataMatrix) {
+    this._onsetsDataMatrix = matrix
+  }
+
   get velocities (): PatternDataMatrix {
     return this._velocitiesDataMatrix
   }
 
+  set velocities (matrix: PatternDataMatrix) {
+    this._velocitiesDataMatrix = matrix
+  }
+
   get offsets (): PatternDataMatrix {
     return this._offsetsDataMatrix
+  }
+
+  set offsets (matrix: PatternDataMatrix) {
+    this._offsetsDataMatrix = matrix
   }
 
   static async build (
@@ -263,6 +293,42 @@ class Generator {
       console.error('failed to load Generator')
       throw new Error(e)
     }
+  }
+  
+  async load(filepath: string): Promise<void> {
+    /**
+     * Load the generator state, consisting of the onsetsDataMatrix, velocitiesDataMatrix,
+     * offsetsDataMatrix from file.
+     */
+    const d = await asyncReadFile(filepath, 'utf-8')
+    const data  = JSON.parse(d)
+
+    const onsetsDataMatrix = new PatternDataMatrix(data["outputShape"], data["length"])
+    const velocitiesDataMatrix = new PatternDataMatrix(data["outputShape"], data["length"])
+    const offsetsDataMatrix = new PatternDataMatrix(data["outputShape"], data["length"])
+
+    onsetsDataMatrix.data = data["onsets"]
+    velocitiesDataMatrix.data = data["velocities"]
+    offsetsDataMatrix.data = data["offsets"]
+    
+    this._onsetsDataMatrix = onsetsDataMatrix
+    this._velocitiesDataMatrix = velocitiesDataMatrix
+    this._offsetsDataMatrix = offsetsDataMatrix
+  }
+  
+  async save (filepath: string): Promise<void> {
+    /*
+     * Save the onsetsDataMatrix, velocitiesDataMatrix, offsetsDataMatrix data
+     * to file along with necessary ( for PatternDataMatrix construction ) metadata
+     */
+    const data = {
+      "outputShape": this.outputShape,
+      "length": this.onsets.length,
+      "onsets": this.onsets,
+      "velocities": this.velocities,
+      "offsets": this.offsets
+    }
+    await asyncWriteFile(filepath, JSON.stringify(data))
   }
 
   batchedInput (onsetsPattern: Pattern, batchSize: number): Pattern {

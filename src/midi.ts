@@ -7,7 +7,7 @@ const JZZ = require('jzz')
 require('jzz-midi-smf')(JZZ)
 
 // TODO: Refactor using EventEmitter
-function processMidiEvent (event, pitchMapping, stepsPer16th): [number, number, number, number] {
+function processMidiEvent (event, pitchMapping: Record<string, number>, stepsPer16th: number): [number, number, number, number] {
   const step = event.tt / stepsPer16th
   const stepIndex = Math.round(step)
   const pitch = parseInt(event['1'])
