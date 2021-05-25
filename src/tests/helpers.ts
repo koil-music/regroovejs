@@ -3,7 +3,6 @@ import { DRUM_PITCH_CLASSES } from "../constants";
 import { Pattern } from "../pattern";
 import { readMidiFile } from "../midi";
 
-
 async function testPattern(): Promise<[Pattern, Pattern, Pattern]> {
   const filePath = "src/tests/fixtures/Variation_01.mid";
   const pitchMapping = pitchToIndexMap(
@@ -13,10 +12,14 @@ async function testPattern(): Promise<[Pattern, Pattern, Pattern]> {
   return await readMidiFile(filePath, pitchMapping);
 }
 
-type RequestBodyType = Record<string, Float32Array | number>
+type RequestBodyType = Record<string, Float32Array | number>;
 
 async function getRequestBody(): Promise<RequestBodyType> {
-  const [onsetsPattern, velocitiesPattern, offsetsPattern] = await testPattern();
+  const [
+    onsetsPattern,
+    velocitiesPattern,
+    offsetsPattern,
+  ] = await testPattern();
   return {
     onsets: onsetsPattern.data,
     velocities: velocitiesPattern.data,
@@ -34,21 +37,21 @@ function arraysEqual(a, b): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; ++i) {
     if (a[0].constructor === Array) {
-        for (let j = 0; j < a[0].length; ++j) {
-            if (a[0][0].constructor === Array) {
-                for (let k = 0; k < a[0][0].length; ++k) {
-                    const aValue = a[i][j][k]
-                    const bValue = b[i][j][k]
-                    if (aValue !== bValue) return false;   
-                }
-            } else {
-                if (round(a[i][j], 6) !== round(b[i][j], 6)) return false;
-            }
+      for (let j = 0; j < a[0].length; ++j) {
+        if (a[0][0].constructor === Array) {
+          for (let k = 0; k < a[0][0].length; ++k) {
+            const aValue = a[i][j][k];
+            const bValue = b[i][j][k];
+            if (aValue !== bValue) return false;
+          }
+        } else {
+          if (round(a[i][j], 6) !== round(b[i][j], 6)) return false;
         }
+      }
     } else {
-        if (a[i] !== b[i]) {
-          return false
-        }
+      if (a[i] !== b[i]) {
+        return false;
+      }
     }
   }
   return true;
