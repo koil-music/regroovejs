@@ -335,9 +335,21 @@ class Generator {
       data["length"]
     );
 
-    onsetsDataMatrix.data = data["onsets"];
-    velocitiesDataMatrix.data = data["velocities"];
-    offsetsDataMatrix.data = data["offsets"];
+    for (let i = 0; i < data["length"]; i++) {
+      for (let j = 0; j < data["length"]; j++) {
+        const onsetsMatrix = JSON.parse(data["onsets"])
+        const onsetsData = Float32Array.from(Object.values(onsetsMatrix[i][j]))
+        onsetsDataMatrix.append(onsetsData, i, j)
+
+        const velocitiesMatrix = JSON.parse(data["onsets"])
+        const velocitiesData = Float32Array.from(Object.values(velocitiesMatrix[i][j]))
+        velocitiesDataMatrix.append(velocitiesData, i, j)
+
+        const offsetsMatrix = JSON.parse(data["onsets"])
+        const offsetsData = Float32Array.from(Object.values(offsetsMatrix[i][j]))
+        offsetsDataMatrix.append(offsetsData, i, j)
+      }
+    }
 
     this._onsetsDataMatrix = onsetsDataMatrix;
     this._velocitiesDataMatrix = velocitiesDataMatrix;
@@ -352,11 +364,12 @@ class Generator {
     const data = {
       outputShape: this.outputShape,
       length: this.onsets.length,
-      onsets: this.onsets,
-      velocities: this.velocities,
-      offsets: this.offsets,
+      onsets: JSON.stringify(this.onsets),
+      velocities: JSON.stringify(this.velocities),
+      offsets: JSON.stringify(this.offsets)
     };
-    await asyncWriteFile(filepath, JSON.stringify(data));
+    const stringData = JSON.stringify(data)
+    await asyncWriteFile(filepath, stringData);
   }
 
   batchedInput(onsetsPattern: Pattern, batchSize: number): Pattern {
