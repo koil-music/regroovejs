@@ -364,9 +364,9 @@ class Generator {
     const data = {
       outputShape: this.outputShape,
       length: this.onsets.length,
-      onsets: JSON.stringify(this.onsets),
-      velocities: JSON.stringify(this.velocities),
-      offsets: JSON.stringify(this.offsets)
+      onsets: JSON.stringify(this.onsets.data),
+      velocities: JSON.stringify(this.velocities.data),
+      offsets: JSON.stringify(this.offsets.data)
     };
     const stringData = JSON.stringify(data)
     await asyncWriteFile(filepath, stringData);

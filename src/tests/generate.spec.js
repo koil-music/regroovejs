@@ -254,14 +254,14 @@ describe("Generator", function () {
       const expectedShape = [1, LOOP_DURATION, CHANNELS];
       let length = 10;
       const dataMatrix = new PatternDataMatrix(expectedShape, length);
-      const testDataMatrix = dataMatrix.empty();
-      const ones = Array.from({ length: LOOP_DURATION * CHANNELS }, () => 1);
-      testDataMatrix[0][0] = ones;
+      // const testDataMatrix = dataMatrix.empty();
+      const ones = Float32Array.from({ length: LOOP_DURATION * CHANNELS }, () => 1);
+      dataMatrix._T[0][0] = ones;
 
       // assign different PatternDataMatrix to generator
-      generator.onsets = testDataMatrix;
-      generator.velocities = testDataMatrix;
-      generator.offsets = testDataMatrix;
+      generator.onsets = dataMatrix;
+      generator.velocities = dataMatrix;
+      generator.offsets = dataMatrix;
 
       // load generator state into gotGenerator
       const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tmp-"));
@@ -278,20 +278,20 @@ describe("Generator", function () {
 
       assert.ok(
         arraysEqual(
-          Array.from(testDataMatrix[0][0]),
+          Array.from(dataMatrix.data[0][0]),
           Array.from(gotGenerator.onsets.data[0][0])
         )
       );
       assert.ok(
         arraysEqual(
-          Array.from(testDataMatrix),
-          Array.from(gotGenerator.velocities.data)
+          Array.from(dataMatrix.data[1][1]),
+          Array.from(gotGenerator.velocities.data[1][1])
         )
       );
       assert.ok(
         arraysEqual(
-          Array.from(testDataMatrix),
-          Array.from(gotGenerator.offsets.data)
+          Array.from(dataMatrix.data[3][3]),
+          Array.from(gotGenerator.offsets.data[3][3])
         )
       );
     });

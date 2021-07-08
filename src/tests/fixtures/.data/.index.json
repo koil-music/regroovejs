@@ -1,12 +1,1 @@
-{
-  "factory1": {
-    "name": "factory1",
-    "path": "/home/max/repos/groove/regroove-libsrc/tests/fixtures/.data/factory/factory1.mid",
-    "parent": "factory"
-  },
-  "user1": {
-    "name": "user1",
-    "path": "/home/max/repos/groove/regroove-libsrc/tests/fixtures/.data/factory/user1.mid",
-    "parent": "user"
-  }
-}
+{"factory1":{"name":"factory1","path":"/home/max/repos/groove/regroove-libsrc/tests/fixtures/.data/factory/factory1.mid","parent":"factory"},"user1":{"name":"user1","path":"/home/max/repos/groove/regroove-libsrc/tests/fixtures/.data/factory/user1.mid","parent":"user"}}
