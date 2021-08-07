@@ -1,10 +1,10 @@
 {
-  "name": "regroove-lib",
-  "version": "1.0.5",
-  "description": "Library code for regroove-m4l",
-  "homepage": "https://github.com/rekoil/regroove-lib",
+  "name": "regroovejs",
+  "version": "0.1.0-b1",
+  "description": "JavaScript library wrapping the `regroove` ONNX exported model",
+  "homepage": "https://github.com/rekoillabs/regroovejs",
   "bugs": {
-    "url": "https://github.com/rekoil/regroove-lib/issues"
+    "url": "https://github.com/rekoillabs/regroovejs/issues"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,8 +19,7 @@
   "license": "MIT",
   "private": false,
   "engines": {
-    "node": "10.23.1",
-    "npm": "6.14.10"
+    "node": ">=12"
   },
   "engineStrict": true,
   "prepublish": "tsc",
