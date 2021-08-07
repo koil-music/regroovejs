@@ -14,7 +14,7 @@ const MIN_VELOCITY_THRESHOLD = 10; // ignore loops with onsets less than this
 const NOTE_THRESHOLD = 0.5;
 const MIN_ONSET_THRESHOLD = 0.3;
 const MAX_ONSET_THRESHOLD = 0.7;
-const NUM_SAMPLES = 400;
+const NUM_SAMPLES = 100;
 const NOTE_DROPOUT = 0.5;
 
 let ENV = "staging";
