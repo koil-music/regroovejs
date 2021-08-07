@@ -1,5 +1,5 @@
 import assert from "assert";
-import { Tensor } from "onnxruntime";
+import { Tensor } from "onnxruntime-web";
 
 type TensorType = number[][][];
 type MatrixType = number[][];

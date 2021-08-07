@@ -4,6 +4,7 @@ import os from "os";
 import path from "path";
 import { performance } from "perf_hooks";
 import { describe, it } from "mocha";
+import { Tensor } from "onnxruntime-web";
 
 import {
   CHANNELS,
@@ -19,7 +20,6 @@ import { PatternDataMatrix, applyOnsetThreshold } from "../generate";
 import { Generator } from "../generate";
 import { arraysEqual } from "./helpers.ts";
 import { linspace } from "../util";
-import { Tensor } from "onnxruntime";
 
 describe("PatternDataMatrix", function () {
   const expectedShape = [1, LOOP_DURATION, CHANNELS];

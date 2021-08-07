@@ -1,7 +1,7 @@
 import fs from "fs";
 import { promisify } from "util";
 
-import { Tensor } from "onnxruntime";
+import { Tensor } from "onnxruntime-web";
 import { ONNXModel } from "./model";
 import { Pattern, PatternSizeError } from "./pattern";
 import {

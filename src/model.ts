@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-import { InferenceSession, Tensor } from "onnxruntime";
+import { InferenceSession, Tensor } from "onnxruntime-web";
 import { zeroArray } from "./util";
 import { Pattern } from "./pattern";
 import { stringify } from "querystring";
