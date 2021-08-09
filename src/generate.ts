@@ -140,9 +140,10 @@ class Generator {
     maxOnsetThreshold: number
   ) {
     if (typeof syncopateModel === "undefined") {
-      throw new Error(
+      console.error(
         "cannot directly access class constructor - use Generator.build(<params>) instead."
       );
+      throw new Error;
     }
     this.syncopateModel = syncopateModel;
     this.grooveModel = grooveModel;
@@ -309,8 +310,8 @@ class Generator {
         maxOnsetThreshold
       );
     } catch (e) {
-      console.error("failed to load Generator");
-      throw new Error(e);
+      console.error(`failed to load Generator: ${e}`);
+      throw new Error;
     }
   }
 

@@ -37,7 +37,8 @@ class ModelType {
 
     this._meta = this._models[this._name];
     if (this._meta === undefined) {
-      throw new Error(`Invalid model name: ${this._name}`);
+      console.error(`Invalid model name: ${this._name}`);
+      throw new Error;
     }
   }
 
@@ -72,9 +73,10 @@ class ONNXModel {
 
   constructor(session: InferenceSession, meta: ModelMeta) {
     if (typeof session === "undefined") {
-      throw new Error(
+      console.error(
         "cannot be called directly - use await Model.build(pattern) instead"
       );
+      throw new Error;
     }
     this.session = session;
     this.meta = meta;
@@ -90,9 +92,10 @@ class ONNXModel {
       const session = await InferenceSession.create(modelMeta.path);
       return new ONNXModel(session, modelMeta);
     } catch (e) {
-      throw new Error(
+      console.error(
         `failed to load ONNX model from ${modelMeta.path}: ${stringify(e)}`
       );
+      throw new Error;
     }
   }
 
