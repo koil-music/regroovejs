@@ -42,7 +42,6 @@
   },
   "dependencies": {
     "jzz-midi-smf": "^1.4.0",
-    "onnxruntime-web": "^1.8.0",
-    "path-browserify": "^1.0.1"
+    "onnxruntime-web": "^1.8.0"
   }
 }
