@@ -6,7 +6,7 @@
     <br>
     <br>
     <img src="https://github.com/rekoilio/regroove-lib/workflows/ci/badge.svg">
-    <a href="https://badge.fury.io/js/regroove-lib"><img src="https://badge.fury.io/js/regroove-lib.svg" alt="npm version" height="20"></a>
+    <a href="https://badge.fury.io/js/regroovejs"><img src="https://badge.fury.io/js/regroovejs.svg" alt="npm version" height="20"></a>
 </p>
 
 </p>

@@ -1,6 +1,6 @@
 {
   "name": "regroovejs",
-  "version": "0.1.0-b2",
+  "version": "0.1.0-b3",
   "description": "JavaScript library wrapping the `regroove` ONNX exported model",
   "homepage": "https://github.com/rekoillabs/regroovejs",
   "bugs": {
@@ -42,7 +42,6 @@
   },
   "dependencies": {
     "jzz-midi-smf": "^1.4.0",
-    "onnxruntime": "^1.5.1",
     "onnxruntime-web": "^1.8.0"
   }
 }
