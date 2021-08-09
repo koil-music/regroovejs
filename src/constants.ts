@@ -1,11 +1,6 @@
 import path from "path";
-import fs from "fs";
+import DRUM_PITCH_CLASSES from "./pitch-classes"
 
-const data = fs.readFileSync(
-  path.dirname(__dirname) + "/assets/drum_pitch_classes.json",
-  "utf-8"
-);
-const DRUM_PITCH_CLASSES = JSON.parse(data);
 const DRUM_PITCH_MAP = Object.keys(DRUM_PITCH_CLASSES.pitch);
 const CHANNELS = DRUM_PITCH_MAP.length;
 const PITCHES = Object.values(DRUM_PITCH_MAP);
@@ -22,6 +17,7 @@ if (typeof process.env.REGROOVE_ENV === "string") {
   ENV = process.env.REGROOVE_ENV;
 }
 const LOCAL_MODEL_DIR = path.join(process.cwd(), `/regroove-models/${ENV}/`);
+console.log(`Loading models from ${LOCAL_MODEL_DIR}`);
 
 export {
   DRUM_PITCH_CLASSES,

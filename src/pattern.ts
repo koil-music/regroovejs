@@ -1,4 +1,3 @@
-import assert from "assert";
 import { Tensor } from "onnxruntime-web";
 
 type TensorType = number[][][];
@@ -69,20 +68,26 @@ class Pattern extends BasePattern implements IPattern {
   }
 
   static empty(dims: readonly number[]): TensorType {
-    assert.ok(dims.length === 3);
-    return Array.from({ length: dims[0] }, () => {
-      return Array.from({ length: dims[1] }, () => []);
+    if (dims.length === 3) {
+      return Array.from({ length: dims[0] }, () => {
+        return Array.from({ length: dims[1] }, () => []);
     });
+    } else {
+      throw new Error(`dims must be an array of length 3.`)
+    }
   }
 
   static zeros(dims: readonly number[]): TensorType {
-    assert.ok(dims.length === 3);
-    return Array.from({ length: dims[0] }, () => {
-      return Array.from({ length: dims[1] }, () => {
-        return Array.from({ length: dims[2] }, () => 0.0);
+    if (dims.length == 3) {
+      return Array.from({ length: dims[0] }, () => {
+        return Array.from({ length: dims[1] }, () => {
+          return Array.from({ length: dims[2] }, () => 0.0);
       });
     });
+  } else {
+    throw new Error(`dims must be an array of length 3.`)
   }
+}
 
   tensor(): TensorType {
     /**
@@ -106,9 +111,7 @@ class Pattern extends BasePattern implements IPattern {
      * View the pattern with a different dimensionality
      */
     const length = dims[0] * dims[1] * dims[2];
-    try {
-      assert.ok(this.length === length);
-    } catch {
+    if (!(this.length === length)) {
       throw new Error(
         `${dims.toString()} do not match tensor size ${this.length}`
       );
@@ -143,7 +146,9 @@ class Pattern extends BasePattern implements IPattern {
     /**
      * Concatenates two patterns along a given axis
      */
-    assert.ok(axis >= 0, "Negative array indexing not allowed");
+    if (axis < 0) {
+      throw new Error("Negative axis is not allowed.")
+    }
     let concatTensor = this.tensor();
     const tensor = pattern.tensor();
     const dims = [-1, -1, -1];

@@ -1,4 +1,4 @@
-{
+const pitchClasses = {
   "index": {
     "kick": 0,
     "snare": 1,
@@ -33,3 +33,5 @@
     "crash": [49, 56, 58]
   }
 }
+
+export default pitchClasses
