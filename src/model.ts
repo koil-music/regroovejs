@@ -83,7 +83,7 @@ class ONNXModel {
     this.deltaZ = zeroArray(meta.latentSize);
   }
 
-  static async build(modelName: string, modelDir: string): Promise<ONNXModel> {
+  static async load(modelName: string, modelDir: string): Promise<ONNXModel> {
     /**
      * @filePath Path to ONNX model
      */

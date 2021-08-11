@@ -294,8 +294,8 @@ class Generator {
     sequenceLength: number = LOOP_DURATION
   ): Promise<Generator> {
     try {
-      const syncopateModel = await ONNXModel.build("syncopate", modelDir);
-      const grooveModel = await ONNXModel.build("groove", modelDir);
+      const syncopateModel = await ONNXModel.load("syncopate", modelDir);
+      const grooveModel = await ONNXModel.load("groove", modelDir);
       return new Generator(
         syncopateModel,
         grooveModel,
