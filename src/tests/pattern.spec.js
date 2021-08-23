@@ -214,3 +214,24 @@ describe("setcell", function () {
     }
   });
 });
+
+describe("Pattern.mean", function () {
+  it("gets mean of pattern", function () {
+    const value1 = 1;
+    const value2 = 5;
+
+    const dims = [1, 5, 2];
+    const _data = Array.from({ length: dims[1] * dims[2] }, () => value1);
+    const data = _data.map((v, i) => {
+      if (i % 2 === 0) {
+        return value2;
+      } else {
+        return v;
+      }
+    });
+    const pattern = new Pattern(data, dims);
+
+    assert.strictEqual(pattern.mean(0.5), 3);
+    assert.strictEqual(pattern.mean(2), 5);
+  });
+});

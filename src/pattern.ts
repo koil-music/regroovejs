@@ -25,6 +25,7 @@ interface IPattern extends Pattern {
   tensor: () => TensorType;
   view: (dims: number[]) => TensorType;
   setcell: (v: number, step: number, instrument: number) => void;
+  mean: (threshold: number) => number;
 }
 
 class BasePattern extends Tensor<FLOAT32> {
@@ -183,6 +184,19 @@ class Pattern extends BasePattern implements IPattern {
       const index = (instrument - 1) * this.dims[1] + step;
       this.data[index] = value;
     }
+  }
+
+  mean(threshold: number): number {
+    let sigma = 0;
+    let N = 0;
+    for (let i = 0; i < this.length; i++) {
+      const value = this.data[i];
+      if (value > threshold) {
+        sigma += value;
+        N += 1;
+      }
+    }
+    return sigma / N;
   }
 }
 
