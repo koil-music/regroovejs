@@ -1,5 +1,5 @@
 import path from "path";
-import DRUM_PITCH_CLASSES from "./pitch-classes"
+import DRUM_PITCH_CLASSES from "./pitch-classes";
 
 const DRUM_PITCH_MAP = Object.keys(DRUM_PITCH_CLASSES.pitch);
 const CHANNELS = DRUM_PITCH_MAP.length;

@@ -285,7 +285,10 @@ describe("Generator", function () {
       let length = 10;
       const dataMatrix = new PatternDataMatrix(expectedShape, length);
       // const testDataMatrix = dataMatrix.empty();
-      const ones = Float32Array.from({ length: LOOP_DURATION * CHANNELS }, () => 1);
+      const ones = Float32Array.from(
+        { length: LOOP_DURATION * CHANNELS },
+        () => 1
+      );
       dataMatrix._T[0][0] = ones;
 
       // assign different PatternDataMatrix to generator

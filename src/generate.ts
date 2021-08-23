@@ -172,7 +172,7 @@ class Generator {
       console.error(
         "cannot directly access class constructor - use Generator.build(<params>) instead."
       );
-      throw new Error;
+      throw new Error();
     }
     this.syncopateModel = syncopateModel;
     this.grooveModel = grooveModel;
@@ -340,7 +340,7 @@ class Generator {
       );
     } catch (e) {
       console.error(`failed to load Generator: ${e}`);
-      throw new Error;
+      throw new Error();
     }
   }
 
@@ -367,17 +367,21 @@ class Generator {
 
     for (let i = 0; i < data["length"]; i++) {
       for (let j = 0; j < data["length"]; j++) {
-        const onsetsMatrix = JSON.parse(data["onsets"])
-        const onsetsData = Float32Array.from(Object.values(onsetsMatrix[i][j]))
-        onsetsDataMatrix.append(onsetsData, i, j)
+        const onsetsMatrix = JSON.parse(data["onsets"]);
+        const onsetsData = Float32Array.from(Object.values(onsetsMatrix[i][j]));
+        onsetsDataMatrix.append(onsetsData, i, j);
 
-        const velocitiesMatrix = JSON.parse(data["onsets"])
-        const velocitiesData = Float32Array.from(Object.values(velocitiesMatrix[i][j]))
-        velocitiesDataMatrix.append(velocitiesData, i, j)
+        const velocitiesMatrix = JSON.parse(data["onsets"]);
+        const velocitiesData = Float32Array.from(
+          Object.values(velocitiesMatrix[i][j])
+        );
+        velocitiesDataMatrix.append(velocitiesData, i, j);
 
-        const offsetsMatrix = JSON.parse(data["onsets"])
-        const offsetsData = Float32Array.from(Object.values(offsetsMatrix[i][j]))
-        offsetsDataMatrix.append(offsetsData, i, j)
+        const offsetsMatrix = JSON.parse(data["onsets"]);
+        const offsetsData = Float32Array.from(
+          Object.values(offsetsMatrix[i][j])
+        );
+        offsetsDataMatrix.append(offsetsData, i, j);
       }
     }
 
@@ -396,9 +400,9 @@ class Generator {
       length: this.onsets.length,
       onsets: JSON.stringify(this.onsets.data),
       velocities: JSON.stringify(this.velocities.data),
-      offsets: JSON.stringify(this.offsets.data)
+      offsets: JSON.stringify(this.offsets.data),
     };
-    const stringData = JSON.stringify(data)
+    const stringData = JSON.stringify(data);
     await asyncWriteFile(filepath, stringData);
   }
 

@@ -38,7 +38,7 @@ class ModelType {
     this._meta = this._models[this._name];
     if (this._meta === undefined) {
       console.error(`Invalid model name: ${this._name}`);
-      throw new Error;
+      throw new Error();
     }
   }
 
@@ -76,7 +76,7 @@ class ONNXModel {
       console.error(
         "cannot be called directly - use await Model.build(pattern) instead"
       );
-      throw new Error;
+      throw new Error();
     }
     this.session = session;
     this.meta = meta;
@@ -95,7 +95,7 @@ class ONNXModel {
       console.error(
         `failed to load ONNX model from ${modelMeta.path}: ${stringify(e)}`
       );
-      throw new Error;
+      throw new Error();
     }
   }
 

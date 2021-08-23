@@ -129,7 +129,7 @@ describe("Pattern", function () {
   });
 });
 
-describe("Pattern", function () {
+describe("Pattern.from_midi", function () {
   it("loads from midi", async function () {
     const [
       onsetsPattern,
@@ -166,7 +166,7 @@ describe("Pattern", function () {
   });
 });
 
-describe("transpose2d", function () {
+describe("Pattern.transpose2d", function () {
   it("handles 2d input correctly", function () {
     const input = [
       [1, 2, 3, 4],
@@ -184,7 +184,7 @@ describe("transpose2d", function () {
   });
 });
 
-describe("setcell", function () {
+describe("Pattern.setcell", function () {
   it("sets internal data to expected value", function () {
     const dims = [1, 5, 2];
     const data = new Float32Array(dims[0] * dims[1] * dims[2]);
