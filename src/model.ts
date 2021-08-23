@@ -1,7 +1,13 @@
 import fs from "fs";
 import path from "path";
+const isBrowser = typeof window !== 'undefined';
+let InferenceSession, Tensor
+if (isBrowser) {
+  ({ InferenceSession, Tensor } = require("onnxruntime-web"))
+} else {
+  ({ InferenceSession, Tensor } = require("onnxruntime"))
+}
 
-import { InferenceSession, Tensor } from "onnxruntime-web";
 import { zeroArray } from "./util";
 import { Pattern } from "./pattern";
 import { stringify } from "querystring";
@@ -67,11 +73,11 @@ class ONNXModel {
   /**
    * Wraps ONNX model for stateful inference sessions
    */
-  session: InferenceSession;
+  session: typeof InferenceSession;
   meta: ModelMeta;
   deltaZ: number[];
 
-  constructor(session: InferenceSession, meta: ModelMeta) {
+  constructor(session: typeof InferenceSession, meta: ModelMeta) {
     if (typeof session === "undefined") {
       console.error(
         "cannot be called directly - use await Model.build(pattern) instead"
@@ -102,7 +108,7 @@ class ONNXModel {
   async forward(
     input: Pattern,
     noteDropout = 0.5
-  ): Promise<Record<string, Tensor>> {
+  ): Promise<Record<string, typeof Tensor>> {
     /**
      * Forward pass of ONNX model.
      *

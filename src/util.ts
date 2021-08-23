@@ -1,4 +1,10 @@
-import { Tensor } from "onnxruntime-web"
+let Tensor
+const isBrowser = typeof window !== 'undefined';
+if (isBrowser) {
+  ({ Tensor } = require("onnxruntime-web"))
+} else {
+  ({ Tensor } = require("onnxruntime"))
+}
 
 import { Pattern } from "./pattern";
 import { DRUM_PITCH_CLASSES, MIN_VELOCITY_THRESHOLD } from "./constants";
@@ -66,11 +72,11 @@ function round(value: number, depth: number): number {
 }
 
 function applyOnsetThreshold(
-  onsets: Tensor,
+  onsets: typeof Tensor,
   dims: number[],
   threshold: number
 ): Pattern {
-  const onsetsPattern = new Pattern(onsets, dims);
+  const onsetsPattern = new Pattern(onsets.data, dims);
   const outputArray = onsetsPattern.data.map((v) => {
     if (v < threshold) {
       return 0.0;
@@ -81,7 +87,7 @@ function applyOnsetThreshold(
   return new Pattern(outputArray, dims);
 }
 
-function normalize(input: Tensor, dims: number[], target: number): Pattern {
+function normalize(input: typeof Tensor, dims: number[], target: number): Pattern {
   const inputPattern = new Pattern(input, dims);
   const delta = target - inputPattern.mean(MIN_VELOCITY_THRESHOLD);
   const normalized = inputPattern.data.map((value) => {

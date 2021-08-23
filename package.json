@@ -13,7 +13,8 @@
     "coverage": "./node_modules/nyc/bin/nyc.js mocha -r ts-node/register",
     "lint": "./node_modules/.bin/eslint src --fix",
     "build": "rm -rf dist && tsc",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "prebuild": "rollup -c > index.js && BROWSER=true rollup -c > browser.js"
   },
   "author": "Max Kraan",
   "license": "MIT",
@@ -42,6 +43,7 @@
   },
   "dependencies": {
     "jzz-midi-smf": "^1.4.0",
+    "onnxruntime": "^1.7.0",
     "onnxruntime-web": "^1.8.0"
   }
 }

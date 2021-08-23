@@ -1,4 +1,10 @@
-import { Tensor } from "onnxruntime-web";
+let Tensor
+const isBrowser = typeof window !== 'undefined';
+if (isBrowser) {
+  ({ Tensor } = require("onnxruntime-web"))
+} else {
+  ({ Tensor } = require("onnxruntime"))
+}
 
 type TensorType = number[][][];
 type MatrixType = number[][];
@@ -38,7 +44,7 @@ class BasePattern extends Tensor<FLOAT32> {
    * @param data Float32Array containing pattern data
    * @param dims Target tensor dimensions
    */
-  constructor(data: Float32Array | TensorType | Tensor, dims: number[]) {
+  constructor(data: Float32Array | TensorType | typeof Tensor, dims: number[]) {
     let d;
     if (data instanceof Float32Array) {
       d = data;
