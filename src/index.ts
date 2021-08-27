@@ -1,15 +1,17 @@
-import { Generator } from "./generate";
-import { Pattern } from "./pattern";
-import { ONNXModel } from "./model";
-import { PatternHistory } from "./history";
 import { DRUM_PITCH_CLASSES } from "./constants";
+import Generator from "./generate";
+import { ONNXModel } from "./model";
+import { Pattern } from "./pattern";
+import { PatternHistory } from "./history";
+import PatternDataMatrix from "./data-matrix";
 import { pitchToIndexMap } from "./util";
 
 export {
-  Generator,
-  Pattern,
-  ONNXModel,
-  PatternHistory,
-  pitchToIndexMap,
   DRUM_PITCH_CLASSES,
-};
+  Generator,
+  ONNXModel,
+  Pattern,
+  PatternHistory,
+  PatternDataMatrix,
+  pitchToIndexMap
+}

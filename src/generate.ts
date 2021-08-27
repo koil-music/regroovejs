@@ -1,9 +1,9 @@
 import fs from "fs";
 import { promisify } from "util";
 
-import { Tensor } from "onnxruntime-web";
 import { ONNXModel } from "./model";
-import { Pattern, PatternSizeError } from "./pattern";
+import { Pattern } from "./pattern";
+import PatternDataMatrix from "./data-matrix";
 import {
   LOOP_DURATION,
   CHANNELS,
@@ -13,144 +13,55 @@ import {
   NUM_SAMPLES,
   NOTE_DROPOUT,
 } from "./constants";
-import { linspace } from "./util";
+import { linspace, normalize, applyOnsetThreshold } from "./util";
 
 const asyncReadFile = promisify(fs.readFile);
 const asyncWriteFile = promisify(fs.writeFile);
 
-class PatternDataMatrix {
-  /**
-   * 2D data matrix that holds Pattern instances
-   */
-  outputShape: [number, number, number];
-  dims: [number, number, number];
-  _length: number;
-  _T: Float32Array[][];
-
-  constructor(outputShape: [number, number, number], length: number) {
-    this.outputShape = outputShape;
-    this.dims = [1, outputShape[1], outputShape[2]];
-    this._length = length;
-    this._T = this.empty();
-  }
-
-  empty(): Float32Array[][] {
-    return Array.from({ length: this.length }, () => {
-      return Array.from({ length: this.length }, () => {
-        return new Float32Array(this.outputSize);
-      });
-    });
-  }
-
-  get length(): number {
-    return this._length;
-  }
-
-  set length(value: number) {
-    this._length = value;
-    this._T = this.empty();
-  }
-
-  get matrixSize(): number {
-    return this.length ** 2;
-  }
-
-  get outputSize(): number {
-    return this.outputShape[0] * this.outputShape[1] * this.outputShape[2];
-  }
-
-  get data(): Float32Array[][] {
-    return this._T;
-  }
-
-  set data(d: Float32Array[][]) {
-    this._T = d;
-  }
-
-  append(p: Float32Array, i: number, j: number): void {
-    if (i < this.length && j < this.length) {
-      if (p.length === this.outputSize) {
-        this._T[i][j] = p;
-      } else {
-        throw new PatternSizeError(this.outputSize, p.length);
-      }
-    } else {
-      console.warn(
-        `Index (${i},${j}) is out of bounds for data matrix of size ${this.length}`
-      );
-    }
-  }
-
-  sample(i: number, j: number): Float32Array {
-    return this._T[i][j];
-  }
-
-  normal(threshold: number): [number, number] {
-    const means: number[] = [];
-    for (let i = 0; i < this.length; i++) {
-      for (let j = 0; j < this.length; j++) {
-        const pattern = new Pattern(this.sample(i, j), this.dims);
-        const patternMean = pattern.mean(threshold);
-        if (!isNaN(patternMean)) {
-          means.push(patternMean);
-        }
-      }
-    }
-
-    // get mean
-    const sum = (sum: number, value: number) => sum + value;
-    const mean = means.reduce(sum) / means.length;
-
-    // get std
-    let rms = 0;
-    for (const v of means) {
-      rms += (v - mean) ** 2;
-    }
-    const std = Math.sqrt(rms / means.length);
-
-    return [mean, std];
-  }
-}
-
 class Generator {
   /**
-   * This class wraps our loaded ONNX syncopateModel and fills an Object (data)
-   * with predicted patterns
-   *
    * @syncopateModel          Instance of ONNXModel trained for syncopating patterns
    * @grooveModel             Instance of ONNXModel trained for grooving patterns
+
    * @onsetsPattern           Instance of Pattern to be used as input onsets
    * @velocitiesPattern       Instance of Pattern to be used as input velocities
    * @offsetsPattern          Instance of Pattern to be used as input offsets
+
    * @_dims                   Tuple of matrix dimension sizes for row of generator data
    * @_channels               Number of channels in a Pattern
    * @_loopDuration           Number of sequence steps in a Pattern
    * @_outputShape            Tuple of matrix dimensions sizes for ONE instance of Pattern
-   * @_numSamples             Number of samples to generate - the sqrt is taken and the
-                              result rounded and used as the axis size of the pattern grid
+
+   * @_numSamples             Number of samples to generate
    * @_noteDropout            Mean note dropout probability
-   * @_min/maxNoteDropout     Variance around mean note dropout probability
+   * @_minNoteDropout         Minimum dropout probability
+   * @_maxNoteDropout         Maximum dropout probability
    * @_minOnsetThreshold      Minimum onset threshold value for generated samples
    * @_maxOnsetThreshold      Maximum onset threshold value for generated samples
    * @_onsetsDataMatrix       Instance of PatternSizeError containing onsets data
+
    * @_velocitiesDataMatrix   Instance of PatternDataMatrix containing velocities data
    * @_offsetsDataMatrix      Instance of PatternDataMatrix containing offsets data
    */
   syncopateModel: ONNXModel;
   grooveModel: ONNXModel;
+
   onsetsPattern: Pattern;
   velocitiesPattern: Pattern;
   offsetsPattern: Pattern;
+
   _dims: number[];
   _channels: number;
   _loopDuration: number;
   _outputShape: [number, number, number];
+
   _numSamples: number;
   _noteDropout: number;
   _minNoteDropout: number;
   _maxNoteDropout: number;
   _minOnsetThreshold: number;
   _maxOnsetThreshold: number;
+
   _onsetsDataMatrix: PatternDataMatrix;
   _velocitiesDataMatrix: PatternDataMatrix;
   _offsetsDataMatrix: PatternDataMatrix;
@@ -203,111 +114,6 @@ class Generator {
       this.outputShape,
       this.axisLength
     );
-  }
-
-  get minOnsetThreshold(): number {
-    return this._minOnsetThreshold;
-  }
-
-  set minOnsetThreshold(value: number) {
-    this._minOnsetThreshold = value;
-  }
-
-  get maxOnsetThreshold(): number {
-    return this._maxOnsetThreshold;
-  }
-
-  set maxOnsetThreshold(value: number) {
-    this._maxOnsetThreshold = value;
-  }
-
-  get onsetThresholdRange(): number[] {
-    return linspace(
-      this._minOnsetThreshold,
-      this._maxOnsetThreshold,
-      this.axisLength
-    );
-  }
-
-  get numSamples(): number {
-    return this._numSamples;
-  }
-
-  set numSamples(value: number) {
-    this._numSamples = value;
-    this._onsetsDataMatrix.length = value;
-    this._velocitiesDataMatrix.length = value;
-    this._offsetsDataMatrix.length = value;
-  }
-
-  get axisLength(): number {
-    return Math.round(Math.sqrt(this._numSamples));
-  }
-
-  set noteDropout(value: number) {
-    this._noteDropout = value;
-  }
-
-  get noteDropout(): number {
-    return this._noteDropout;
-  }
-
-  get minNoteDropout(): number {
-    return this._noteDropout - 0.05;
-  }
-
-  get maxNoteDropout(): number {
-    return this._noteDropout + 0.05;
-  }
-
-  get channels(): number {
-    return this._channels;
-  }
-
-  set channels(value: number) {
-    this._channels = value;
-    this._outputShape[2] = value;
-  }
-
-  get loopDuration(): number {
-    return this._loopDuration;
-  }
-
-  set loopDuration(value: number) {
-    this._loopDuration = value;
-    this._outputShape[1] = value;
-  }
-
-  get outputShape(): [number, number, number] {
-    return this._outputShape;
-  }
-
-  get dims(): number[] {
-    return this._dims;
-  }
-
-  get onsets(): PatternDataMatrix {
-    return this._onsetsDataMatrix;
-  }
-
-  set onsets(matrix: PatternDataMatrix) {
-    this._onsetsDataMatrix = matrix;
-  }
-
-  get velocities(): PatternDataMatrix {
-    return this._velocitiesDataMatrix;
-  }
-
-  set velocities(matrix: PatternDataMatrix) {
-    this._velocitiesDataMatrix = matrix;
-  }
-
-  get offsets(): PatternDataMatrix {
-    return this._offsetsDataMatrix;
-  }
-
-  set offsets(matrix: PatternDataMatrix) {
-    this._offsetsDataMatrix = matrix;
   }
 
   static async build(
@@ -521,38 +327,110 @@ class Generator {
       }
     }
   }
+    get minOnsetThreshold(): number {
+    return this._minOnsetThreshold;
+  }
+
+  set minOnsetThreshold(value: number) {
+    this._minOnsetThreshold = value;
+  }
+
+  get maxOnsetThreshold(): number {
+    return this._maxOnsetThreshold;
+  }
+
+  set maxOnsetThreshold(value: number) {
+    this._maxOnsetThreshold = value;
+  }
+
+  get onsetThresholdRange(): number[] {
+    return linspace(
+      this._minOnsetThreshold,
+      this._maxOnsetThreshold,
+      this.axisLength
+    );
+  }
+
+  get numSamples(): number {
+    return this._numSamples;
+  }
+
+  set numSamples(value: number) {
+    this._numSamples = value;
+    this._onsetsDataMatrix.length = value;
+    this._velocitiesDataMatrix.length = value;
+    this._offsetsDataMatrix.length = value;
+  }
+
+  get axisLength(): number {
+    return Math.round(Math.sqrt(this._numSamples));
+  }
+
+  set noteDropout(value: number) {
+    this._noteDropout = value;
+  }
+
+  get noteDropout(): number {
+    return this._noteDropout;
+  }
+
+  get minNoteDropout(): number {
+    return this._noteDropout - 0.05;
+  }
+
+  get maxNoteDropout(): number {
+    return this._noteDropout + 0.05;
+  }
+
+  get channels(): number {
+    return this._channels;
+  }
+
+  set channels(value: number) {
+    this._channels = value;
+    this._outputShape[2] = value;
+  }
+
+  get loopDuration(): number {
+    return this._loopDuration;
+  }
+
+  set loopDuration(value: number) {
+    this._loopDuration = value;
+    this._outputShape[1] = value;
+  }
+
+  get outputShape(): [number, number, number] {
+    return this._outputShape;
+  }
+
+  get dims(): number[] {
+    return this._dims;
+  }
+
+  get onsets(): PatternDataMatrix {
+    return this._onsetsDataMatrix;
+  }
+
+  set onsets(matrix: PatternDataMatrix) {
+    this._onsetsDataMatrix = matrix;
+  }
+
+  get velocities(): PatternDataMatrix {
+    return this._velocitiesDataMatrix;
+  }
+
+  set velocities(matrix: PatternDataMatrix) {
+    this._velocitiesDataMatrix = matrix;
+  }
+
+  get offsets(): PatternDataMatrix {
+    return this._offsetsDataMatrix;
+  }
+
+  set offsets(matrix: PatternDataMatrix) {
+    this._offsetsDataMatrix = matrix;
+  }
 }
 
-function applyOnsetThreshold(
-  onsets: Tensor,
-  dims: number[],
-  threshold: number
-): Pattern {
-  const onsetsPattern = new Pattern(onsets, dims);
-  const outputArray = onsetsPattern.data.map((v) => {
-    if (v < threshold) {
-      return 0.0;
-    } else {
-      return 1.0;
-    }
-  });
-  return new Pattern(outputArray, dims);
-}
-
-function normalize(input: Tensor, dims: number[], target: number): Pattern {
-  const inputPattern = new Pattern(input, dims);
-  const delta = target - inputPattern.mean(MIN_VELOCITY_THRESHOLD);
-  const normalized = inputPattern.data.map((value) => {
-    let adjustedValue: number;
-    if (value > MIN_VELOCITY_THRESHOLD) {
-      adjustedValue = value + delta;
-    } else {
-      adjustedValue = value;
-    }
-
-    return Math.min(1, Math.max(0, adjustedValue));
-  });
-  return new Pattern(normalized, dims);
-}
-
-export { Generator, applyOnsetThreshold, PatternDataMatrix, normalize };
+export default Generator;
