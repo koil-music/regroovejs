@@ -2,9 +2,7 @@ import assert from "assert";
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { performance } from "perf_hooks";
 import { describe, it } from "mocha";
-import { Tensor } from "onnxruntime-web";
 
 import {
   CHANNELS,
@@ -15,132 +13,11 @@ import {
   NOTE_DROPOUT,
   NUM_SAMPLES,
 } from "../constants";
-import { Pattern, PatternSizeError } from "../pattern";
-import {
-  Generator,
-  PatternDataMatrix,
-  applyOnsetThreshold,
-  normalize,
-} from "../generate";
+import { Pattern } from "../pattern";
+import Generator from "../generate";
+import PatternDataMatrix from "../data-matrix";
 import { arraysEqual } from "./helpers.ts";
 import { linspace } from "../util";
-
-describe("PatternDataMatrix", function () {
-  const expectedShape = [1, LOOP_DURATION, CHANNELS];
-  let length = 10;
-  const dataMatrix = new PatternDataMatrix(expectedShape, length);
-  const pattern = Float32Array.from(
-    { length: expectedShape[1] * expectedShape[2] },
-    () => {
-      return 1;
-    }
-  );
-
-  it("constructed properly", function () {
-    assert.strictEqual(dataMatrix.length, length);
-    assert.strictEqual(dataMatrix.matrixSize, length ** 2);
-    assert.strictEqual(dataMatrix.outputShape, expectedShape);
-    assert.strictEqual(
-      dataMatrix.outputSize,
-      expectedShape[1] * expectedShape[2]
-    );
-
-    length = 20;
-    dataMatrix.length = length;
-    assert.strictEqual(dataMatrix.length, length);
-
-    const emptyDataMatrix = dataMatrix.empty();
-    assert.strictEqual(emptyDataMatrix.length, length);
-    assert.strictEqual(emptyDataMatrix[0].length, length);
-    assert.strictEqual(emptyDataMatrix[0][0].length, LOOP_DURATION * CHANNELS);
-    for (let i = 0; i < length; i++) {
-      for (let j = 0; j < length; j++) {
-        assert.ok(
-          arraysEqual(
-            Array.from(emptyDataMatrix[i][j]),
-            Array.from({ length: LOOP_DURATION * CHANNELS }, () => 0)
-          )
-        );
-      }
-    }
-  }),
-    it("appends correct patterns", function () {
-      for (let i = 0; i < length; i++) {
-        for (let j = 0; j < length; j++) {
-          dataMatrix.append(pattern, i, j);
-          const gotPattern = dataMatrix.sample(i, j);
-          assert.ok(arraysEqual(Array.from(gotPattern), Array.from(pattern)));
-        }
-      }
-    }),
-    it("rejects out of bounds append indices", function () {
-      let i = length + 1;
-      let j = 0;
-      dataMatrix.append(pattern, i, j);
-    }),
-    it("throws patternSizeError", function () {
-      let i = 1;
-      let j = 1;
-      const invalidLength = expectedShape[1] * expectedShape[2] + 1;
-      const invalidPattern = Float32Array.from(
-        { length: invalidLength },
-        () => {
-          return 1;
-        }
-      );
-      assert.throws(function () {
-        dataMatrix.append(invalidPattern, i, j);
-      }, PatternSizeError);
-    }),
-    it("fails when indexing out of bounds", function () {
-      let i = length + 1;
-      let j = 1;
-      assert.throws(function () {
-        dataMatrix.sample(i, j);
-      }, TypeError);
-    });
-  it("gets and sets data", function () {
-    // TODO
-    // 1. Actually test PatternDataMatrix here
-    // 2. empty() should return a PatternDataMatrix
-    const testDataMatrix = dataMatrix.empty();
-    const expectedData = Array.from(
-      { length: LOOP_DURATION * CHANNELS },
-      () => 1
-    );
-    // assert.ok(arraysEqual(Array.from(testDataMatrix.data), Array.from(expectedData)))
-    testDataMatrix[0][0] = Array.from(
-      { length: LOOP_DURATION * CHANNELS },
-      () => 1
-    );
-    assert.ok(
-      arraysEqual(Array.from(testDataMatrix[0][0]), Array.from(expectedData))
-    );
-  });
-  it("normal", function () {
-    const testData = dataMatrix.empty();
-    const testDataMatrix = new PatternDataMatrix(expectedShape, length);
-    testDataMatrix.data = testData;
-    const ones = Array.from({ length: LOOP_DURATION * CHANNELS }, () => 1);
-    const fives = Array.from({ length: LOOP_DURATION * CHANNELS }, () => 5);
-    for (let i = 0; i < testDataMatrix.length; i++) {
-      for (let j = 0; j < testDataMatrix.length; j++) {
-        if (j % 2 === 0) {
-          testDataMatrix._T[i][j] = Float32Array.from(fives);
-        } else {
-          testDataMatrix._T[i][j] = Float32Array.from(ones);
-        }
-      }
-    }
-    let [gotMean, gotStd] = testDataMatrix.normal(0.5);
-    assert.ok(gotMean === 3);
-    assert.ok(gotStd === 2);
-
-    [gotMean, gotStd] = testDataMatrix.normal(2);
-    assert.ok(gotMean === 5);
-    assert.ok(gotStd === 0);
-  });
-});
 
 describe("Generator", function () {
   const onsetsData = Float32Array.from(
@@ -337,45 +214,5 @@ describe("Generator", function () {
     );
     await generator.run();
     await generator.normalizeVelocities();
-  });
-});
-
-describe("applyOnsetThreshold", function () {
-  it("applies onset properly", async function () {
-    const data = new Float32Array(8);
-    const expectedDims = [1, 4, 2];
-    data.fill(0.5);
-    let gotPattern = applyOnsetThreshold(
-      new Tensor("float32", data, expectedDims),
-      expectedDims,
-      0.4
-    );
-    let expected = Array.from({ length: 8 }, () => 1);
-    assert.ok(arraysEqual(Array.from(gotPattern.data), expected));
-
-    data.fill(0.3);
-    gotPattern = applyOnsetThreshold(
-      new Tensor("float32", data, expectedDims),
-      expectedDims,
-      0.4
-    );
-    expected = Array.from({ length: 8 }, () => 0);
-    assert.ok(arraysEqual(Array.from(gotPattern.data), expected));
-  });
-});
-
-describe("normalize", function () {
-  it("runs as expected", function () {
-    const dims = [1, 4, 2];
-    const data = Float32Array.from({ length: dims[1] * dims[2] }, () => 0.7);
-    const inputPattern = new Pattern(data, dims);
-
-    const target = 0.5;
-    const gotPattern = normalize(inputPattern, dims, target);
-    const expectedData = Array.from(
-      { length: dims[1] * dims[2] },
-      () => target
-    );
-    assert.ok(arraysEqual(Array.from(gotPattern.data), expectedData));
   });
 });

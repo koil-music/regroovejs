@@ -1,7 +1,10 @@
 import assert from "assert";
-import { arraysEqual } from "./helpers";
-import { linspace, round } from "../util";
 import { describe, it } from "mocha";
+import { Tensor } from "onnxruntime-web";
+
+import { Pattern } from "../pattern";
+import { arraysEqual } from "./helpers";
+import { linspace, round, normalize, applyOnsetThreshold } from "../util";
 
 describe("linspace", function () {
   it("handles correct input", function () {
@@ -29,5 +32,45 @@ describe("round", function () {
     const expected = 2;
     const got = round(value, depth);
     assert.strictEqual(got, expected);
+  });
+});
+
+describe("applyOnsetThreshold", function () {
+  it("applies onset properly", async function () {
+    const data = new Float32Array(8);
+    const expectedDims = [1, 4, 2];
+    data.fill(0.5);
+    let gotPattern = applyOnsetThreshold(
+      new Tensor("float32", data, expectedDims),
+      expectedDims,
+      0.4
+    );
+    let expected = Array.from({ length: 8 }, () => 1);
+    assert.ok(arraysEqual(Array.from(gotPattern.data), expected));
+
+    data.fill(0.3);
+    gotPattern = applyOnsetThreshold(
+      new Tensor("float32", data, expectedDims),
+      expectedDims,
+      0.4
+    );
+    expected = Array.from({ length: 8 }, () => 0);
+    assert.ok(arraysEqual(Array.from(gotPattern.data), expected));
+  });
+});
+
+describe("normalize", function () {
+  it("runs as expected", function () {
+    const dims = [1, 4, 2];
+    const data = Float32Array.from({ length: dims[1] * dims[2] }, () => 0.7);
+    const inputPattern = new Pattern(data, dims);
+
+    const target = 0.5;
+    const gotPattern = normalize(inputPattern, dims, target);
+    const expectedData = Array.from(
+      { length: dims[1] * dims[2] },
+      () => target
+    );
+    assert.ok(arraysEqual(Array.from(gotPattern.data), expectedData));
   });
 });
