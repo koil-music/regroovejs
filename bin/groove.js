@@ -70,7 +70,7 @@ readMidiFile(filePath, pitchMapping)
     inputOffsets = output[2];
 
     console.log("Loaded file.");
-    ONNXModel.build("groove", LOCAL_MODEL_DIR).then((model) => predict(model));
+    ONNXModel.load("groove", LOCAL_MODEL_DIR).then((model) => predict(model));
   })
   .catch((e) => {
     console.log("Something went wrong: ", e)

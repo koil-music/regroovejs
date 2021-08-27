@@ -1,11 +1,11 @@
 import path from "path";
-import DRUM_PITCH_CLASSES from "./pitch-classes"
+import DRUM_PITCH_CLASSES from "./pitch-classes";
 
 const DRUM_PITCH_MAP = Object.keys(DRUM_PITCH_CLASSES.pitch);
 const CHANNELS = DRUM_PITCH_MAP.length;
 const PITCHES = Object.values(DRUM_PITCH_MAP);
 const LOOP_DURATION = 16;
-const MIN_VELOCITY_THRESHOLD = 10; // ignore loops with onsets less than this
+const MIN_VELOCITY_THRESHOLD = 0.01;
 const NOTE_THRESHOLD = 0.5;
 const MIN_ONSET_THRESHOLD = 0.3;
 const MAX_ONSET_THRESHOLD = 0.7;

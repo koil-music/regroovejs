@@ -8,7 +8,7 @@ import { testPattern } from "./helpers.ts";
 
 describe("ONNXModel", function () {
   it("syncopate model is constructed correctly", async function () {
-    const model = await ONNXModel.build("syncopate", LOCAL_MODEL_DIR);
+    const model = await ONNXModel.load("syncopate", LOCAL_MODEL_DIR);
     const configData = fs.readFileSync(
       LOCAL_MODEL_DIR + "/syncopate.json",
       "utf-8"
@@ -19,8 +19,8 @@ describe("ONNXModel", function () {
     assert.ok(model.meta.loopDuration == config["loopDuration"]);
   });
   it("syncopate model properly runs forward function", async function () {
-    // build model
-    const model = await ONNXModel.build("syncopate", LOCAL_MODEL_DIR);
+    // load model
+    const model = await ONNXModel.load("syncopate", LOCAL_MODEL_DIR);
 
     // prepare input data
     const [onsets, velocities, offsets] = await testPattern();
@@ -41,7 +41,7 @@ describe("ONNXModel", function () {
     // TODO: More tests on output shape and actual values
   });
   it("groove model is constructed correctly", async function () {
-    const model = await ONNXModel.build("groove", LOCAL_MODEL_DIR);
+    const model = await ONNXModel.load("groove", LOCAL_MODEL_DIR);
     const configData = fs.readFileSync(
       LOCAL_MODEL_DIR + "/groove.json",
       "utf-8"
@@ -52,8 +52,8 @@ describe("ONNXModel", function () {
     assert.ok(model.meta.loopDuration == config["loopDuration"]);
   });
   it("groove model properly runs forward function", async function () {
-    // build model
-    const model = await ONNXModel.build("groove", LOCAL_MODEL_DIR);
+    // load model
+    const model = await ONNXModel.load("groove", LOCAL_MODEL_DIR);
 
     // prepare input data
     const [onsets, velocities, offsets] = await testPattern();

@@ -16,8 +16,12 @@ import {
   NUM_SAMPLES,
 } from "../constants";
 import { Pattern, PatternSizeError } from "../pattern";
-import { PatternDataMatrix, applyOnsetThreshold } from "../generate";
-import { Generator } from "../generate";
+import {
+  Generator,
+  PatternDataMatrix,
+  applyOnsetThreshold,
+  normalize,
+} from "../generate";
 import { arraysEqual } from "./helpers.ts";
 import { linspace } from "../util";
 
@@ -96,6 +100,9 @@ describe("PatternDataMatrix", function () {
       }, TypeError);
     });
   it("gets and sets data", function () {
+    // TODO
+    // 1. Actually test PatternDataMatrix here
+    // 2. empty() should return a PatternDataMatrix
     const testDataMatrix = dataMatrix.empty();
     const expectedData = Array.from(
       { length: LOOP_DURATION * CHANNELS },
@@ -109,6 +116,29 @@ describe("PatternDataMatrix", function () {
     assert.ok(
       arraysEqual(Array.from(testDataMatrix[0][0]), Array.from(expectedData))
     );
+  });
+  it("normal", function () {
+    const testData = dataMatrix.empty();
+    const testDataMatrix = new PatternDataMatrix(expectedShape, length);
+    testDataMatrix.data = testData;
+    const ones = Array.from({ length: LOOP_DURATION * CHANNELS }, () => 1);
+    const fives = Array.from({ length: LOOP_DURATION * CHANNELS }, () => 5);
+    for (let i = 0; i < testDataMatrix.length; i++) {
+      for (let j = 0; j < testDataMatrix.length; j++) {
+        if (j % 2 === 0) {
+          testDataMatrix._T[i][j] = Float32Array.from(fives);
+        } else {
+          testDataMatrix._T[i][j] = Float32Array.from(ones);
+        }
+      }
+    }
+    let [gotMean, gotStd] = testDataMatrix.normal(0.5);
+    assert.ok(gotMean === 3);
+    assert.ok(gotStd === 2);
+
+    [gotMean, gotStd] = testDataMatrix.normal(2);
+    assert.ok(gotMean === 5);
+    assert.ok(gotStd === 0);
   });
 });
 
@@ -255,7 +285,10 @@ describe("Generator", function () {
       let length = 10;
       const dataMatrix = new PatternDataMatrix(expectedShape, length);
       // const testDataMatrix = dataMatrix.empty();
-      const ones = Float32Array.from({ length: LOOP_DURATION * CHANNELS }, () => 1);
+      const ones = Float32Array.from(
+        { length: LOOP_DURATION * CHANNELS },
+        () => 1
+      );
       dataMatrix._T[0][0] = ones;
 
       // assign different PatternDataMatrix to generator
@@ -295,6 +328,16 @@ describe("Generator", function () {
         )
       );
     });
+  it("normalizes velocity", async function () {
+    const generator = await Generator.build(
+      onsetsData,
+      velocitiesData,
+      offsetsData,
+      LOCAL_MODEL_DIR
+    );
+    await generator.run();
+    await generator.normalizeVelocities();
+  });
 });
 
 describe("applyOnsetThreshold", function () {
@@ -318,5 +361,21 @@ describe("applyOnsetThreshold", function () {
     );
     expected = Array.from({ length: 8 }, () => 0);
     assert.ok(arraysEqual(Array.from(gotPattern.data), expected));
+  });
+});
+
+describe("normalize", function () {
+  it("runs as expected", function () {
+    const dims = [1, 4, 2];
+    const data = Float32Array.from({ length: dims[1] * dims[2] }, () => 0.7);
+    const inputPattern = new Pattern(data, dims);
+
+    const target = 0.5;
+    const gotPattern = normalize(inputPattern, dims, target);
+    const expectedData = Array.from(
+      { length: dims[1] * dims[2] },
+      () => target
+    );
+    assert.ok(arraysEqual(Array.from(gotPattern.data), expectedData));
   });
 });

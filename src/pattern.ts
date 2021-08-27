@@ -25,6 +25,7 @@ interface IPattern extends Pattern {
   tensor: () => TensorType;
   view: (dims: number[]) => TensorType;
   setcell: (v: number, step: number, instrument: number) => void;
+  mean: (threshold: number) => number;
 }
 
 class BasePattern extends Tensor<FLOAT32> {
@@ -71,9 +72,9 @@ class Pattern extends BasePattern implements IPattern {
     if (dims.length === 3) {
       return Array.from({ length: dims[0] }, () => {
         return Array.from({ length: dims[1] }, () => []);
-    });
+      });
     } else {
-      throw new Error(`dims must be an array of length 3.`)
+      throw new Error(`dims must be an array of length 3.`);
     }
   }
 
@@ -82,12 +83,12 @@ class Pattern extends BasePattern implements IPattern {
       return Array.from({ length: dims[0] }, () => {
         return Array.from({ length: dims[1] }, () => {
           return Array.from({ length: dims[2] }, () => 0.0);
+        });
       });
-    });
-  } else {
-    throw new Error(`dims must be an array of length 3.`)
+    } else {
+      throw new Error(`dims must be an array of length 3.`);
+    }
   }
-}
 
   tensor(): TensorType {
     /**
@@ -147,7 +148,7 @@ class Pattern extends BasePattern implements IPattern {
      * Concatenates two patterns along a given axis
      */
     if (axis < 0) {
-      throw new Error("Negative axis is not allowed.")
+      throw new Error("Negative axis is not allowed.");
     }
     let concatTensor = this.tensor();
     const tensor = pattern.tensor();
@@ -183,6 +184,19 @@ class Pattern extends BasePattern implements IPattern {
       const index = (instrument - 1) * this.dims[1] + step;
       this.data[index] = value;
     }
+  }
+
+  mean(threshold: number): number {
+    let sigma = 0;
+    let N = 0;
+    for (let i = 0; i < this.length; i++) {
+      const value = this.data[i];
+      if (value > threshold) {
+        sigma += value;
+        N += 1;
+      }
+    }
+    return sigma / N;
   }
 }
 

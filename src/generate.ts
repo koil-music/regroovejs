@@ -9,6 +9,7 @@ import {
   CHANNELS,
   MIN_ONSET_THRESHOLD,
   MAX_ONSET_THRESHOLD,
+  MIN_VELOCITY_THRESHOLD,
   NUM_SAMPLES,
   NOTE_DROPOUT,
 } from "./constants";
@@ -22,11 +23,13 @@ class PatternDataMatrix {
    * 2D data matrix that holds Pattern instances
    */
   outputShape: [number, number, number];
+  dims: [number, number, number];
   _length: number;
   _T: Float32Array[][];
 
   constructor(outputShape: [number, number, number], length: number) {
     this.outputShape = outputShape;
+    this.dims = [1, outputShape[1], outputShape[2]];
     this._length = length;
     this._T = this.empty();
   }
@@ -80,6 +83,32 @@ class PatternDataMatrix {
 
   sample(i: number, j: number): Float32Array {
     return this._T[i][j];
+  }
+
+  normal(threshold: number): [number, number] {
+    const means: number[] = [];
+    for (let i = 0; i < this.length; i++) {
+      for (let j = 0; j < this.length; j++) {
+        const pattern = new Pattern(this.sample(i, j), this.dims);
+        const patternMean = pattern.mean(threshold);
+        if (!isNaN(patternMean)) {
+          means.push(patternMean);
+        }
+      }
+    }
+
+    // get mean
+    const sum = (sum: number, value: number) => sum + value;
+    const mean = means.reduce(sum) / means.length;
+
+    // get std
+    let rms = 0;
+    for (const v of means) {
+      rms += (v - mean) ** 2;
+    }
+    const std = Math.sqrt(rms / means.length);
+
+    return [mean, std];
   }
 }
 
@@ -143,7 +172,7 @@ class Generator {
       console.error(
         "cannot directly access class constructor - use Generator.build(<params>) instead."
       );
-      throw new Error;
+      throw new Error();
     }
     this.syncopateModel = syncopateModel;
     this.grooveModel = grooveModel;
@@ -294,8 +323,8 @@ class Generator {
     sequenceLength: number = LOOP_DURATION
   ): Promise<Generator> {
     try {
-      const syncopateModel = await ONNXModel.build("syncopate", modelDir);
-      const grooveModel = await ONNXModel.build("groove", modelDir);
+      const syncopateModel = await ONNXModel.load("syncopate", modelDir);
+      const grooveModel = await ONNXModel.load("groove", modelDir);
       return new Generator(
         syncopateModel,
         grooveModel,
@@ -311,7 +340,7 @@ class Generator {
       );
     } catch (e) {
       console.error(`failed to load Generator: ${e}`);
-      throw new Error;
+      throw new Error();
     }
   }
 
@@ -338,17 +367,21 @@ class Generator {
 
     for (let i = 0; i < data["length"]; i++) {
       for (let j = 0; j < data["length"]; j++) {
-        const onsetsMatrix = JSON.parse(data["onsets"])
-        const onsetsData = Float32Array.from(Object.values(onsetsMatrix[i][j]))
-        onsetsDataMatrix.append(onsetsData, i, j)
+        const onsetsMatrix = JSON.parse(data["onsets"]);
+        const onsetsData = Float32Array.from(Object.values(onsetsMatrix[i][j]));
+        onsetsDataMatrix.append(onsetsData, i, j);
 
-        const velocitiesMatrix = JSON.parse(data["onsets"])
-        const velocitiesData = Float32Array.from(Object.values(velocitiesMatrix[i][j]))
-        velocitiesDataMatrix.append(velocitiesData, i, j)
+        const velocitiesMatrix = JSON.parse(data["onsets"]);
+        const velocitiesData = Float32Array.from(
+          Object.values(velocitiesMatrix[i][j])
+        );
+        velocitiesDataMatrix.append(velocitiesData, i, j);
 
-        const offsetsMatrix = JSON.parse(data["onsets"])
-        const offsetsData = Float32Array.from(Object.values(offsetsMatrix[i][j]))
-        offsetsDataMatrix.append(offsetsData, i, j)
+        const offsetsMatrix = JSON.parse(data["onsets"]);
+        const offsetsData = Float32Array.from(
+          Object.values(offsetsMatrix[i][j])
+        );
+        offsetsDataMatrix.append(offsetsData, i, j);
       }
     }
 
@@ -367,9 +400,9 @@ class Generator {
       length: this.onsets.length,
       onsets: JSON.stringify(this.onsets.data),
       velocities: JSON.stringify(this.velocities.data),
-      offsets: JSON.stringify(this.offsets.data)
+      offsets: JSON.stringify(this.offsets.data),
     };
-    const stringData = JSON.stringify(data)
+    const stringData = JSON.stringify(data);
     await asyncWriteFile(filepath, stringData);
   }
 
@@ -459,6 +492,35 @@ class Generator {
       }
     }
   }
+
+  async normalizeVelocities(): Promise<void> {
+    const [mean, std] = this._velocitiesDataMatrix.normal(
+      MIN_VELOCITY_THRESHOLD
+    );
+    for (let i = 0; i < this.axisLength; i++) {
+      for (let j = 0; j < this.axisLength; j++) {
+        const velocitiesPattern = new Pattern(
+          this._velocitiesDataMatrix.sample(i, j),
+          this.outputShape
+        );
+
+        // normalize if difference in means is greater than 2 standard deviations
+        const deltaMean = velocitiesPattern.mean(MIN_VELOCITY_THRESHOLD) - mean;
+        if (deltaMean > 2 * std) {
+          const normalizedVelocitiesPattern = normalize(
+            velocitiesPattern,
+            this.outputShape,
+            mean
+          );
+          this._velocitiesDataMatrix.append(
+            normalizedVelocitiesPattern.data,
+            i,
+            j
+          );
+        }
+      }
+    }
+  }
 }
 
 function applyOnsetThreshold(
@@ -477,4 +539,20 @@ function applyOnsetThreshold(
   return new Pattern(outputArray, dims);
 }
 
-export { Generator, applyOnsetThreshold, PatternDataMatrix };
+function normalize(input: Tensor, dims: number[], target: number): Pattern {
+  const inputPattern = new Pattern(input, dims);
+  const delta = target - inputPattern.mean(MIN_VELOCITY_THRESHOLD);
+  const normalized = inputPattern.data.map((value) => {
+    let adjustedValue: number;
+    if (value > MIN_VELOCITY_THRESHOLD) {
+      adjustedValue = value + delta;
+    } else {
+      adjustedValue = value;
+    }
+
+    return Math.min(1, Math.max(0, adjustedValue));
+  });
+  return new Pattern(normalized, dims);
+}
+
+export { Generator, applyOnsetThreshold, PatternDataMatrix, normalize };

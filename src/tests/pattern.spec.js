@@ -129,7 +129,7 @@ describe("Pattern", function () {
   });
 });
 
-describe("Pattern", function () {
+describe("Pattern.from_midi", function () {
   it("loads from midi", async function () {
     const [
       onsetsPattern,
@@ -166,7 +166,7 @@ describe("Pattern", function () {
   });
 });
 
-describe("transpose2d", function () {
+describe("Pattern.transpose2d", function () {
   it("handles 2d input correctly", function () {
     const input = [
       [1, 2, 3, 4],
@@ -184,7 +184,7 @@ describe("transpose2d", function () {
   });
 });
 
-describe("setcell", function () {
+describe("Pattern.setcell", function () {
   it("sets internal data to expected value", function () {
     const dims = [1, 5, 2];
     const data = new Float32Array(dims[0] * dims[1] * dims[2]);
@@ -212,5 +212,26 @@ describe("setcell", function () {
     for (let i = 0; i < pattern.length; i++) {
       assert.strictEqual(pattern.data[i], 0);
     }
+  });
+});
+
+describe("Pattern.mean", function () {
+  it("gets mean of pattern", function () {
+    const value1 = 1;
+    const value2 = 5;
+
+    const dims = [1, 5, 2];
+    const _data = Array.from({ length: dims[1] * dims[2] }, () => value1);
+    const data = _data.map((v, i) => {
+      if (i % 2 === 0) {
+        return value2;
+      } else {
+        return v;
+      }
+    });
+    const pattern = new Pattern(data, dims);
+
+    assert.strictEqual(pattern.mean(0.5), 3);
+    assert.strictEqual(pattern.mean(2), 5);
   });
 });
