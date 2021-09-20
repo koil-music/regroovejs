@@ -1,6 +1,6 @@
 {
   "name": "regroovejs",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "JavaScript library wrapping the `regroove` ONNX exported model",
   "homepage": "https://github.com/rekoillabs/regroovejs",
   "bugs": {
