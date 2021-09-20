@@ -12,7 +12,7 @@ const MAX_ONSET_THRESHOLD = 0.7;
 const NUM_SAMPLES = 100;
 const NOTE_DROPOUT = 0.5;
 
-let ENV = "staging";
+let ENV = "v2";
 if (typeof process.env.REGROOVE_ENV === "string") {
   ENV = process.env.REGROOVE_ENV;
 }

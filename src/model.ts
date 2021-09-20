@@ -15,6 +15,7 @@ import { stringify } from "querystring";
 interface ModelMeta {
   name: string;
   path: string;
+  absPath: string;
   latentSize: number;
   channels: number;
   loopDuration: number;
@@ -38,8 +39,9 @@ class ModelType {
 
     this._models.syncopate = loadMeta(modelDir, "syncopate");
     this._models.groove = loadMeta(modelDir, "groove");
-    this._models.syncopate.path = this.modelDir + "syncopate.onnx";
-    this._models.groove.path = this.modelDir + "groove.onnx";
+
+    this._models.syncopate.absPath = path.resolve(this.modelDir, this._models.syncopate.path);
+    this._models.groove.absPath = path.resolve(this.modelDir, this._models.groove.path);
 
     this._meta = this._models[this._name];
     if (this._meta === undefined) {
@@ -95,7 +97,7 @@ class ONNXModel {
      */
     const modelMeta = new ModelType(modelName, modelDir).meta;
     try {
-      const session = await InferenceSession.create(modelMeta.path);
+      const session = await InferenceSession.create(modelMeta.absPath);
       return new ONNXModel(session, modelMeta);
     } catch (e) {
       console.error(
