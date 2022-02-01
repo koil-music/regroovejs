@@ -1,4 +1,3 @@
-import { AppData } from "./appdata";
 import { DRUM_PITCH_CLASSES, LOOP_DURATION, CHANNELS } from "./constants";
 import Generator from "./generate";
 import { ONNXModel } from "./model";
@@ -8,7 +7,6 @@ import PatternDataMatrix from "./data-matrix";
 import { pitchToIndexMap } from "./util";
 
 export {
-  AppData,
   DRUM_PITCH_CLASSES,
   LOOP_DURATION,
   CHANNELS,
