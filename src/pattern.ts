@@ -1,10 +1,4 @@
-let Tensor
-const isBrowser = typeof window !== 'undefined';
-if (isBrowser) {
-  ({ Tensor } = require("onnxruntime-web"))
-} else {
-  ({ Tensor } = require("onnxruntime"))
-}
+import { Tensor } from "./onnxruntime"
 
 type TensorType = number[][][];
 type MatrixType = number[][];
@@ -193,16 +187,16 @@ class Pattern extends BasePattern implements IPattern {
   }
 
   mean(threshold: number): number {
-    let sigma = 0;
-    let N = 0;
-    for (let i = 0; i < this.length; i++) {
-      const value = this.data[i];
-      if (value > threshold) {
-        sigma += value;
-        N += 1;
+    let total = 0;
+    let count = 0;
+    const array = Array.from(this.data);
+    array.forEach((item: number) => {
+      if (item > threshold) {
+        total += item;
+        count++;
       }
-    }
-    return sigma / N;
+    });
+    return total / count;
   }
 }
 
