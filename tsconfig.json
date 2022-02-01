@@ -5,7 +5,7 @@
     "moduleResolution": "Node",
     "outDir": "./dist",
     "rootDir": "./src",
-    "allowJs": true,
+    "allowJs": false,
     "esModuleInterop": true,
     "declaration": true,
     "noImplicitAny": false,
