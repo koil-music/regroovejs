@@ -1,6 +1,3 @@
-import fs from "fs";
-import { promisify } from "util";
-
 import { ONNXModel } from "./model";
 import { Pattern } from "./pattern";
 import PatternDataMatrix from "./data-matrix";
@@ -12,11 +9,10 @@ import {
   MIN_VELOCITY_THRESHOLD,
   NUM_SAMPLES,
   NOTE_DROPOUT,
+  SYNC_LATENT_SIZE,
+  GROOVE_LATENT_SIZE,
 } from "./constants";
 import { linspace, normalize, applyOnsetThreshold } from "./util";
-
-const asyncReadFile = promisify(fs.readFile);
-const asyncWriteFile = promisify(fs.writeFile);
 
 class Generator {
   /**
@@ -120,7 +116,8 @@ class Generator {
     onsets: Float32Array,
     velocities: Float32Array,
     offsets: Float32Array,
-    modelDir: string,
+    syncModelPath: string,
+    grooveModelPath: string,
     minOnsetThreshold: number = MIN_ONSET_THRESHOLD,
     maxOnsetThreshold: number = MAX_ONSET_THRESHOLD,
     numSamples: number = NUM_SAMPLES,
@@ -129,8 +126,8 @@ class Generator {
     sequenceLength: number = LOOP_DURATION
   ): Promise<Generator> {
     try {
-      const syncopateModel = await ONNXModel.load("syncopate", modelDir);
-      const grooveModel = await ONNXModel.load("groove", modelDir);
+      const syncopateModel = await ONNXModel.load(syncModelPath, SYNC_LATENT_SIZE);
+      const grooveModel = await ONNXModel.load(grooveModelPath, GROOVE_LATENT_SIZE);
       return new Generator(
         syncopateModel,
         grooveModel,
@@ -150,13 +147,16 @@ class Generator {
     }
   }
 
-  async load(filepath: string): Promise<void> {
+  async load(jsonData: string): Promise<void> {
     /**
      * Load the generator state, consisting of the onsetsDataMatrix, velocitiesDataMatrix,
-     * offsetsDataMatrix from file.
+     * offsetsDataMatrix from a JSON data string.
+     * 
+     * Example usage:
+     *    const jsonData = await fs.readFileAsync("/path/to/file.json", "utf-8");
+     *    generator.load(jsonData)
      */
-    const d = await asyncReadFile(filepath, "utf-8");
-    const data = JSON.parse(d);
+    const data = JSON.parse(jsonData);
 
     const onsetsDataMatrix = new PatternDataMatrix(
       data["outputShape"],
@@ -196,10 +196,10 @@ class Generator {
     this._offsetsDataMatrix = offsetsDataMatrix;
   }
 
-  async save(filepath: string): Promise<void> {
+  async encode(): Promise<string> {
     /*
-     * Save the onsetsDataMatrix, velocitiesDataMatrix, offsetsDataMatrix data
-     * to file along with necessary ( for PatternDataMatrix construction ) metadata
+     * Encode the onsetsDataMatrix, velocitiesDataMatrix, offsetsDataMatrix data
+     * to a JSON string along with necessary ( for PatternDataMatrix construction ) metadata
      */
     const data = {
       outputShape: this.outputShape,
@@ -208,8 +208,7 @@ class Generator {
       velocities: JSON.stringify(this.velocities.data),
       offsets: JSON.stringify(this.offsets.data),
     };
-    const stringData = JSON.stringify(data);
-    await asyncWriteFile(filepath, stringData);
+    return JSON.stringify(data);
   }
 
   batchedInput(onsetsPattern: Pattern, batchSize: number): Pattern {
