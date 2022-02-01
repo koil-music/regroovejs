@@ -1,4 +1,3 @@
-import path from "path";
 import DRUM_PITCH_CLASSES from "./pitch-classes";
 
 const DRUM_PITCH_MAP = Object.keys(DRUM_PITCH_CLASSES.pitch);
@@ -11,25 +10,21 @@ const MIN_ONSET_THRESHOLD = 0.3;
 const MAX_ONSET_THRESHOLD = 0.7;
 const NUM_SAMPLES = 100;
 const NOTE_DROPOUT = 0.5;
-
-let ENV = "v2";
-if (typeof process.env.REGROOVE_ENV === "string") {
-  ENV = process.env.REGROOVE_ENV;
-}
-const LOCAL_MODEL_DIR = path.join(process.cwd(), `/regroove-models/${ENV}/`);
-console.log(`Loading models from ${LOCAL_MODEL_DIR}`);
+const SYNC_LATENT_SIZE = 2;
+const GROOVE_LATENT_SIZE = 32;
 
 export {
+  CHANNELS,
   DRUM_PITCH_CLASSES,
   DRUM_PITCH_MAP,
-  CHANNELS,
-  PITCHES,
+  GROOVE_LATENT_SIZE,
   LOOP_DURATION,
   MIN_VELOCITY_THRESHOLD,
-  NOTE_THRESHOLD,
   MIN_ONSET_THRESHOLD,
   MAX_ONSET_THRESHOLD,
-  NUM_SAMPLES,
   NOTE_DROPOUT,
-  LOCAL_MODEL_DIR,
+  NOTE_THRESHOLD,
+  NUM_SAMPLES,
+  PITCHES,
+  SYNC_LATENT_SIZE,
 };

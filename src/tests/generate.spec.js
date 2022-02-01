@@ -33,7 +33,8 @@ describe("Generator", function () {
       onsetsData,
       velocitiesData,
       offsetsData,
-      LOCAL_MODEL_DIR
+      "./regroove-models/v2/graceful-fire-240/model.onnx",
+      "./regroove-models/v2/olive-lion-52/model.onnx",
     );
 
     // assert.strictEqual(typeof generator.model, ONNXModel)
@@ -95,7 +96,8 @@ describe("Generator", function () {
         onsetsData,
         velocitiesData,
         offsetsData,
-        LOCAL_MODEL_DIR
+        "./regroove-models/v2/graceful-fire-240/model.onnx",
+        "./regroove-models/v2/olive-lion-52/model.onnx",
       );
       assert.ok(
         arraysEqual(generator.onsets.outputShape, [1, LOOP_DURATION, CHANNELS])
@@ -116,7 +118,8 @@ describe("Generator", function () {
         onsetsData,
         velocitiesData,
         offsetsData,
-        LOCAL_MODEL_DIR
+        "./regroove-models/v2/graceful-fire-240/model.onnx",
+        "./regroove-models/v2/olive-lion-52/model.onnx",
       );
       const dims = [1, LOOP_DURATION, CHANNELS];
       const onsetsPattern = new Pattern(onsetsData, dims);
@@ -133,7 +136,8 @@ describe("Generator", function () {
         onsetsData,
         velocitiesData,
         offsetsData,
-        LOCAL_MODEL_DIR
+        "./regroove-models/v2/graceful-fire-240/model.onnx",
+        "./regroove-models/v2/olive-lion-52/model.onnx",
       );
       await generator.run();
 
@@ -153,7 +157,8 @@ describe("Generator", function () {
         onsetsData,
         velocitiesData,
         offsetsData,
-        LOCAL_MODEL_DIR
+        "./regroove-models/v2/graceful-fire-240/model.onnx",
+        "./regroove-models/v2/olive-lion-52/model.onnx",
       );
       await generator.run();
 
@@ -173,18 +178,15 @@ describe("Generator", function () {
       generator.velocities = dataMatrix;
       generator.offsets = dataMatrix;
 
-      // load generator state into gotGenerator
-      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tmp-"));
-      const filepath = path.join(dir, "test.rgstate");
-
-      await generator.save(filepath);
+      const jsonData = await generator.encode();
       const gotGenerator = await Generator.build(
         onsetsData,
         velocitiesData,
         offsetsData,
-        LOCAL_MODEL_DIR
+        "./regroove-models/v2/graceful-fire-240/model.onnx",
+        "./regroove-models/v2/olive-lion-52/model.onnx",
       );
-      await gotGenerator.load(filepath);
+      await gotGenerator.load(jsonData);
 
       assert.ok(
         arraysEqual(
@@ -210,7 +212,8 @@ describe("Generator", function () {
       onsetsData,
       velocitiesData,
       offsetsData,
-      LOCAL_MODEL_DIR
+      "./regroove-models/v2/graceful-fire-240/model.onnx",
+      "./regroove-models/v2/olive-lion-52/model.onnx",
     );
     await generator.run();
     await generator.normalizeVelocities();

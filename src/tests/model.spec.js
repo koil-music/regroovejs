@@ -3,24 +3,20 @@ import fs from "fs";
 import { describe, it } from "mocha";
 
 import { ONNXModel } from "../model";
-import { LOCAL_MODEL_DIR } from "../constants";
 import { testPattern } from "./helpers.ts";
 
 describe("ONNXModel", function () {
   it("syncopate model is constructed correctly", async function () {
-    const model = await ONNXModel.load("syncopate", LOCAL_MODEL_DIR);
+    const model = await ONNXModel.load("./regroove-models/v2/graceful-fire-240/model.onnx", 2);
     const configData = fs.readFileSync(
-      LOCAL_MODEL_DIR + "/syncopate.json",
+      "./regroove-models/v2/syncopate.json",
       "utf-8"
     );
     const config = JSON.parse(configData);
-    assert.ok(model.meta.latentSize == config["latentSize"]);
-    assert.ok(model.meta.channels == config["channels"]);
-    assert.ok(model.meta.loopDuration == config["loopDuration"]);
+    assert.ok(model.latentSize == config["latentSize"]);
   });
   it("syncopate model properly runs forward function", async function () {
-    // load model
-    const model = await ONNXModel.load("syncopate", LOCAL_MODEL_DIR);
+    const model = await ONNXModel.load("./regroove-models/v2/graceful-fire-240/model.onnx", 2);
 
     // prepare input data
     const [onsets, velocities, offsets] = await testPattern();
@@ -41,19 +37,16 @@ describe("ONNXModel", function () {
     // TODO: More tests on output shape and actual values
   });
   it("groove model is constructed correctly", async function () {
-    const model = await ONNXModel.load("groove", LOCAL_MODEL_DIR);
+    const model = await ONNXModel.load("./regroove-models/v2/olive-lion-52/model.onnx", 32);
     const configData = fs.readFileSync(
-      LOCAL_MODEL_DIR + "/groove.json",
+      "./regroove-models/v2/groove.json",
       "utf-8"
     );
     const config = JSON.parse(configData);
-    assert.ok(model.meta.latentSize == config["latentSize"]);
-    assert.ok(model.meta.channels == config["channels"]);
-    assert.ok(model.meta.loopDuration == config["loopDuration"]);
+    assert.ok(model.latentSize == config["latentSize"]);
   });
   it("groove model properly runs forward function", async function () {
-    // load model
-    const model = await ONNXModel.load("groove", LOCAL_MODEL_DIR);
+    const model = await ONNXModel.load("./regroove-models/v2/olive-lion-52/model.onnx", 32);
 
     // prepare input data
     const [onsets, velocities, offsets] = await testPattern();
