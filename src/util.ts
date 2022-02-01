@@ -1,11 +1,4 @@
-let Tensor
-const isBrowser = typeof window !== 'undefined';
-if (isBrowser) {
-  ({ Tensor } = require("onnxruntime-web"))
-} else {
-  ({ Tensor } = require("onnxruntime"))
-}
-
+import { Tensor } from "./onnxruntime";
 import { Pattern } from "./pattern";
 import { DRUM_PITCH_CLASSES, MIN_VELOCITY_THRESHOLD } from "./constants";
 
