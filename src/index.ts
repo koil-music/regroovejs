@@ -15,5 +15,5 @@ export {
   Pattern,
   PatternHistory,
   PatternDataMatrix,
-  pitchToIndexMap
-}
+  pitchToIndexMap,
+};

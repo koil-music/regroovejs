@@ -1,11 +1,10 @@
 import assert from "assert";
 import { describe, it } from "mocha";
 
-import { LOOP_DURATION, CHANNELS } from "../constants"
-import PatternDataMatrix from "../data-matrix"
-import { arraysEqual } from "./helpers"
-import { PatternSizeError } from "../pattern"
-
+import { LOOP_DURATION, CHANNELS } from "../constants";
+import PatternDataMatrix from "../data-matrix";
+import { arraysEqual } from "./helpers";
+import { PatternSizeError } from "../pattern";
 
 describe("PatternDataMatrix", function () {
   const expectedShape = [1, LOOP_DURATION, CHANNELS];

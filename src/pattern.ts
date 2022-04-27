@@ -1,4 +1,4 @@
-import { Tensor } from "./onnxruntime"
+import { Tensor } from "./onnxruntime";
 
 type TensorType = number[][][];
 type MatrixType = number[][];
