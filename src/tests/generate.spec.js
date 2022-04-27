@@ -1,18 +1,15 @@
 import assert from "assert";
-import fs from "fs";
-import os from "os";
-import path from "path";
 import { describe, it } from "mocha";
 
 import {
   CHANNELS,
-  LOCAL_MODEL_DIR,
   LOOP_DURATION,
   MAX_ONSET_THRESHOLD,
   MIN_ONSET_THRESHOLD,
   NOTE_DROPOUT,
   NUM_SAMPLES,
 } from "../constants";
+import { InferenceSession } from "../onnxruntime";
 import { Pattern } from "../pattern";
 import Generator from "../generate";
 import PatternDataMatrix from "../data-matrix";
@@ -28,13 +25,20 @@ describe("Generator", function () {
   const offsetsData = Float32Array.from(onsetsData).fill(0);
   const expectedDims = [1, LOOP_DURATION, CHANNELS];
 
+  const grooveModelPath = "./regroove-models/v2/olive-lion-52/model.onnx";
+  const syncModelPath = "./regroove-models/v2/graceful-fire-240/model.onnx";
+
   it("constructs, sets and gets attributes", async function () {
+    const grooveInferenceSession = await InferenceSession.create(
+      grooveModelPath
+    );
+    const syncInferenceSession = await InferenceSession.create(syncModelPath);
     const generator = await Generator.build(
       onsetsData,
       velocitiesData,
       offsetsData,
-      "./regroove-models/v2/graceful-fire-240/model.onnx",
-      "./regroove-models/v2/olive-lion-52/model.onnx",
+      syncInferenceSession,
+      grooveInferenceSession
     );
 
     // assert.strictEqual(typeof generator.model, ONNXModel)
@@ -92,12 +96,16 @@ describe("Generator", function () {
     assert.ok(arraysEqual(generator.outputShape, [1, loopDuration, channels]));
   }),
     it("returns empty matrix before running", async function () {
+      const grooveInferenceSession = await InferenceSession.create(
+        grooveModelPath
+      );
+      const syncInferenceSession = await InferenceSession.create(syncModelPath);
       const generator = await Generator.build(
         onsetsData,
         velocitiesData,
         offsetsData,
-        "./regroove-models/v2/graceful-fire-240/model.onnx",
-        "./regroove-models/v2/olive-lion-52/model.onnx",
+        syncInferenceSession,
+        grooveInferenceSession
       );
       assert.ok(
         arraysEqual(generator.onsets.outputShape, [1, LOOP_DURATION, CHANNELS])
@@ -114,12 +122,16 @@ describe("Generator", function () {
       );
     }),
     it("correct size of batchInput", async function () {
+      const grooveInferenceSession = await InferenceSession.create(
+        grooveModelPath
+      );
+      const syncInferenceSession = await InferenceSession.create(syncModelPath);
       const generator = await Generator.build(
         onsetsData,
         velocitiesData,
         offsetsData,
-        "./regroove-models/v2/graceful-fire-240/model.onnx",
-        "./regroove-models/v2/olive-lion-52/model.onnx",
+        syncInferenceSession,
+        grooveInferenceSession
       );
       const dims = [1, LOOP_DURATION, CHANNELS];
       const onsetsPattern = new Pattern(onsetsData, dims);
@@ -132,12 +144,16 @@ describe("Generator", function () {
       );
     }),
     it("builds and initializes methods and variables", async function () {
+      const grooveInferenceSession = await InferenceSession.create(
+        grooveModelPath
+      );
+      const syncInferenceSession = await InferenceSession.create(syncModelPath);
       const generator = await Generator.build(
         onsetsData,
         velocitiesData,
         offsetsData,
-        "./regroove-models/v2/graceful-fire-240/model.onnx",
-        "./regroove-models/v2/olive-lion-52/model.onnx",
+        syncInferenceSession,
+        grooveInferenceSession
       );
       await generator.run();
 
@@ -153,12 +169,16 @@ describe("Generator", function () {
       }
     }),
     it("saves and loads data", async function () {
+      const grooveInferenceSession = await InferenceSession.create(
+        grooveModelPath
+      );
+      const syncInferenceSession = await InferenceSession.create(syncModelPath);
       const generator = await Generator.build(
         onsetsData,
         velocitiesData,
         offsetsData,
-        "./regroove-models/v2/graceful-fire-240/model.onnx",
-        "./regroove-models/v2/olive-lion-52/model.onnx",
+        syncInferenceSession,
+        grooveInferenceSession
       );
       await generator.run();
 
@@ -183,8 +203,8 @@ describe("Generator", function () {
         onsetsData,
         velocitiesData,
         offsetsData,
-        "./regroove-models/v2/graceful-fire-240/model.onnx",
-        "./regroove-models/v2/olive-lion-52/model.onnx",
+        syncInferenceSession,
+        grooveInferenceSession
       );
       await gotGenerator.load(jsonData);
 
@@ -208,12 +228,16 @@ describe("Generator", function () {
       );
     });
   it("normalizes velocity", async function () {
+    const grooveInferenceSession = await InferenceSession.create(
+      grooveModelPath
+    );
+    const syncInferenceSession = await InferenceSession.create(syncModelPath);
     const generator = await Generator.build(
       onsetsData,
       velocitiesData,
       offsetsData,
-      "./regroove-models/v2/graceful-fire-240/model.onnx",
-      "./regroove-models/v2/olive-lion-52/model.onnx",
+      syncInferenceSession,
+      grooveInferenceSession
     );
     await generator.run();
     await generator.normalizeVelocities();
