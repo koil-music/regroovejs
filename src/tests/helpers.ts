@@ -30,7 +30,6 @@ async function getRequestBody(): Promise<RequestBodyType> {
     noteDropout: 0.5,
   };
 }
-
 function arraysEqual(a, b): boolean {
   if (a === b) return true;
   if (a == null || b == null) return false;

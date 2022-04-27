@@ -207,7 +207,6 @@ describe("Pattern.setcell", function () {
     const pattern = new Pattern(data, dims);
 
     const c = [3, 2];
-    const index = (c[1] - 1) * dims[1] + c[0];
     pattern.setcell(1, c[0], c[1]);
     for (let i = 0; i < pattern.length; i++) {
       assert.strictEqual(pattern.data[i], 0);
