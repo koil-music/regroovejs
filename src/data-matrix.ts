@@ -1,10 +1,10 @@
-import { Pattern, PatternSizeError } from "./pattern"
+import { Pattern, PatternSizeError } from "./pattern";
 
 interface IPatternDataMatrix {
-  empty: () => Float32Array[][]
-  append: (p: Float32Array, i: number, j: number) => void
-  sample: (i: number, j: number) => Float32Array
-  normal: (threshold: number) => [number, number]
+  empty: () => Float32Array[][];
+  append: (p: Float32Array, i: number, j: number) => void;
+  sample: (i: number, j: number) => Float32Array;
+  normal: (threshold: number) => [number, number];
 }
 
 class PatternDataMatrix implements IPatternDataMatrix {
@@ -101,4 +101,4 @@ class PatternDataMatrix implements IPatternDataMatrix {
   }
 }
 
-export default PatternDataMatrix
+export default PatternDataMatrix;

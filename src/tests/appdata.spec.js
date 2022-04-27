@@ -94,7 +94,7 @@ describe("AppData", function () {
       expectedName
     );
 
-    const [gotOnsets, gotVelocities, gotOffsets] = await appData.loadPattern(
+    const [gotOnsets, gotVelocities] = await appData.loadPattern(
       expectedName
     );
     let expected = Array.from(expectedOnsets.data);

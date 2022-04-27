@@ -1,3 +1,4 @@
+import { InferenceSession } from "./onnxruntime";
 import { ONNXModel } from "./model";
 import { Pattern } from "./pattern";
 import PatternDataMatrix from "./data-matrix";
@@ -116,8 +117,8 @@ class Generator {
     onsets: Float32Array,
     velocities: Float32Array,
     offsets: Float32Array,
-    syncModelPath: string,
-    grooveModelPath: string,
+    syncInferenceSession: typeof InferenceSession,
+    grooveInferenceSession: typeof InferenceSession,
     minOnsetThreshold: number = MIN_ONSET_THRESHOLD,
     maxOnsetThreshold: number = MAX_ONSET_THRESHOLD,
     numSamples: number = NUM_SAMPLES,
@@ -126,8 +127,14 @@ class Generator {
     sequenceLength: number = LOOP_DURATION
   ): Promise<Generator> {
     try {
-      const syncopateModel = await ONNXModel.load(syncModelPath, SYNC_LATENT_SIZE);
-      const grooveModel = await ONNXModel.load(grooveModelPath, GROOVE_LATENT_SIZE);
+      const syncopateModel = new ONNXModel(
+        syncInferenceSession,
+        SYNC_LATENT_SIZE
+      );
+      const grooveModel = new ONNXModel(
+        grooveInferenceSession,
+        GROOVE_LATENT_SIZE
+      );
       return new Generator(
         syncopateModel,
         grooveModel,
@@ -151,7 +158,7 @@ class Generator {
     /**
      * Load the generator state, consisting of the onsetsDataMatrix, velocitiesDataMatrix,
      * offsetsDataMatrix from a JSON data string.
-     * 
+     *
      * Example usage:
      *    const jsonData = await fs.readFileAsync("/path/to/file.json", "utf-8");
      *    generator.load(jsonData)
@@ -326,7 +333,7 @@ class Generator {
       }
     }
   }
-    get minOnsetThreshold(): number {
+  get minOnsetThreshold(): number {
     return this._minOnsetThreshold;
   }
 

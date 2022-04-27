@@ -80,7 +80,11 @@ function applyOnsetThreshold(
   return new Pattern(outputArray, dims);
 }
 
-function normalize(input: typeof Tensor, dims: number[], target: number): Pattern {
+function normalize(
+  input: typeof Tensor,
+  dims: number[],
+  target: number
+): Pattern {
   const inputPattern = new Pattern(input, dims);
   const delta = target - inputPattern.mean(MIN_VELOCITY_THRESHOLD);
   const normalized = inputPattern.data.map((value) => {
@@ -105,5 +109,5 @@ export {
   linspace,
   round,
   applyOnsetThreshold,
-  normalize
+  normalize,
 };

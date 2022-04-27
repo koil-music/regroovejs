@@ -45,8 +45,7 @@ describe("read/writeMidiFile", function () {
     // TODO: Investigate
     const [
       gotOnsetsPattern,
-      gotVelocitiesPattern,
-      gotOffsetsPattern,
+      gotVelocitiesPattern
     ] = await readMidiFile("test.mid", pitchMapping);
     const expectedOnsets = Array.from(onsetsPattern.data);
     const gotOnsets = Array.from(gotOnsetsPattern.data);

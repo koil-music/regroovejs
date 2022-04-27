@@ -3,7 +3,6 @@ import { InferenceSession, Tensor } from "./onnxruntime";
 import { zeroArray } from "./util";
 import { Pattern } from "./pattern";
 
-
 class ONNXModel {
   /**
    * Wraps ONNX model for stateful inference sessions
@@ -30,9 +29,7 @@ class ONNXModel {
       const session = await InferenceSession.create(modelPath);
       return new ONNXModel(session, latentSize);
     } catch (e) {
-      console.error(
-        `failed to load ONNX model from ${modelPath}`
-      );
+      console.error(`failed to load ONNX model from ${modelPath}`);
       throw new Error();
     }
   }
@@ -51,7 +48,9 @@ class ONNXModel {
      */
     const feeds = {
       input: input,
-      delta_z: new Tensor("float32", zeroArray(this.latentSize), [this.latentSize]),
+      delta_z: new Tensor("float32", zeroArray(this.latentSize), [
+        this.latentSize,
+      ]),
       note_dropout: new Tensor("float32", [noteDropout], [1]),
     };
     const output = await this.session.run(feeds);
