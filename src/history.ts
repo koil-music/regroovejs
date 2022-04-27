@@ -21,7 +21,7 @@ class PatternHistory {
     this._length = value;
   }
 
-  async append(pattern: Pattern): Promise<void> {
+  append(pattern: Pattern): void {
     this._queue.unshift(pattern);
     if (this._queue.length > this._length) {
       this._queue.pop();
