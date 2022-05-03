@@ -41,13 +41,14 @@ class ONNXModel {
     /**
      * Forward pass of ONNX model.
      *
-     * @input       Pattern instance containing input data
-     * @noteDropout Probability of note dropout when generating new pattern
+     * @param {Pattern} input: Input pattern to base predictions on
+     * @param {number} noteDropout: Probability of note dropout when generating new pattern
      *
      * @returns output indices
      */
     const feeds = {
       input: input,
+      target: input,
       delta_z: new Tensor("float32", zeroArray(this.latentSize), [
         this.latentSize,
       ]),
