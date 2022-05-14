@@ -5,7 +5,7 @@
     <i>Generate expressive drum grooves</i>
     <br>
     <br>
-    <img src="https://github.com/rekoilio/regroove-lib/workflows/ci/badge.svg">
+    <img src="https://github.com/rekoillabs/regroovejs/workflows/ci/badge.svg">
     <a href="https://badge.fury.io/js/regroovejs"><img src="https://badge.fury.io/js/regroovejs.svg" alt="npm version" height="20"></a>
 </p>
 
@@ -13,7 +13,7 @@
 <p align="center">
   <a href="https://www.rekoil.io/regroove">Home</a>
   -
-  <a href="https://docs.rekoil.io">Documentation</a>
+  <a href="https://www.rekoil.io/docs/regroove">Documentation</a>
 </p>
 
 <br>
