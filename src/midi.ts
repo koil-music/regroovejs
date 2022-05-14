@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import fs from "fs";
-
 import { Pattern } from "./pattern";
 import { LOOP_DURATION, CHANNELS, DRUM_PITCH_CLASSES } from "./constants";
 const JZZ = require("jzz");
 require("jzz-midi-smf")(JZZ);
 
-// TODO: Refactor using EventEmitter
+
 function processMidiEvent(
   event,
   pitchMapping: Record<string, number>,
@@ -22,12 +20,11 @@ function processMidiEvent(
 }
 
 async function readMidiFile(
-  filePath: string,
+  midiBuffer: string,
   pitchMapping: Record<string, number>
 ): Promise<[Pattern, Pattern, Pattern]> {
-  // get MIDI data
-  const binary = fs.readFileSync(filePath, "binary");
-  const midiSMF = new JZZ.MIDI.SMF(binary);
+  // fileBinary is read in using `fs.readFileSync(pathToMidiFile, "binary")`
+  const midiSMF = new JZZ.MIDI.SMF(midiBuffer);
   const stepsPerQuarter = midiSMF.ppqn;
   const stepsPer16th = stepsPerQuarter / 4;
 
@@ -63,12 +60,11 @@ async function readMidiFile(
   return [onsetsPattern, velocitiesPattern, offsetsPattern];
 }
 
-async function writeMidiFile(
+async function createMidiSMF(
   onsetsPattern: Pattern,
   velocitiesPattern: Pattern,
   offsetsPattern: Pattern,
-  filePath: string
-): Promise<void> {
+): Promise<string> {
   if (onsetsPattern.shape[0] !== 1) {
     throw new Error("Only patterns of batch size 1 can be written to MIDI");
   }
@@ -97,7 +93,9 @@ async function writeMidiFile(
     }
   }
   smf[0].tick(LOOP_DURATION * ticksPerBeat).smfEndOfTrack();
-  fs.writeFileSync(filePath, smf.dump(), "binary");
+
+  // Can be written to file using fs.writeFileSync(filePath, smfDump, "binary");
+  return smf.dump();
 }
 
-export { readMidiFile, writeMidiFile };
+export { readMidiFile, createMidiSMF };

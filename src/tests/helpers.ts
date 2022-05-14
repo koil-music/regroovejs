@@ -1,3 +1,4 @@
+import fs from "fs";
 import { pitchToIndexMap, round } from "../util";
 import { DRUM_PITCH_CLASSES } from "../constants";
 import { Pattern } from "../pattern";
@@ -9,7 +10,8 @@ async function testPattern(): Promise<[Pattern, Pattern, Pattern]> {
     DRUM_PITCH_CLASSES["pitch"],
     DRUM_PITCH_CLASSES["index"]
   );
-  return await readMidiFile(filePath, pitchMapping);
+  const midiBuffer = fs.readFileSync(filePath, "binary");
+  return await readMidiFile(midiBuffer, pitchMapping);
 }
 
 type RequestBodyType = Record<string, Float32Array | number>;
