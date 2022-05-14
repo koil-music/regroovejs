@@ -1,9 +1,10 @@
 import assert from "assert";
 import { describe, it } from "mocha";
+import fs from "fs";
 
 import { DRUM_PITCH_CLASSES, LOOP_DURATION, CHANNELS } from "../constants";
 import { Pattern } from "../pattern";
-import { readMidiFile, writeMidiFile } from "../midi";
+import { readMidiFile, createMidiSMF } from "../midi";
 import { arraysEqual } from "./helpers.ts";
 import { pitchToIndexMap } from "../util";
 
@@ -34,19 +35,19 @@ describe("read/writeMidiFile", function () {
   );
 
   it("writes pattern", async function () {
-    await writeMidiFile(
+    const midiBuffer = await createMidiSMF(
       onsetsPattern,
       velocitiesPattern,
       offsetsPattern,
-      "test.mid"
     );
+    fs.writeFileSync("test.mid", midiBuffer, "binary");
   });
   it("reads pattern and arraysEqual", async function () {
-    // TODO: Investigate
+    const midiBuffer = fs.readFileSync("test.mid", "binary");
     const [
       gotOnsetsPattern,
       gotVelocitiesPattern
-    ] = await readMidiFile("test.mid", pitchMapping);
+    ] = await readMidiFile(midiBuffer, pitchMapping);
     const expectedOnsets = Array.from(onsetsPattern.data);
     const gotOnsets = Array.from(gotOnsetsPattern.data);
     assert.ok(arraysEqual(expectedOnsets, gotOnsets));
