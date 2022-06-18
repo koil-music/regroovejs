@@ -4,7 +4,6 @@ import { LOOP_DURATION, CHANNELS, DRUM_PITCH_CLASSES } from "./constants";
 const JZZ = require("jzz");
 require("jzz-midi-smf")(JZZ);
 
-
 function processMidiEvent(
   event,
   pitchMapping: Record<string, number>,
@@ -63,7 +62,7 @@ async function readMidiFile(
 async function createMidiSMF(
   onsetsPattern: Pattern,
   velocitiesPattern: Pattern,
-  offsetsPattern: Pattern,
+  offsetsPattern: Pattern
 ): Promise<string> {
   if (onsetsPattern.shape[0] !== 1) {
     throw new Error("Only patterns of batch size 1 can be written to MIDI");

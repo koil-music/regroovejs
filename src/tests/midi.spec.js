@@ -38,16 +38,16 @@ describe("read/writeMidiFile", function () {
     const midiBuffer = await createMidiSMF(
       onsetsPattern,
       velocitiesPattern,
-      offsetsPattern,
+      offsetsPattern
     );
     fs.writeFileSync("test.mid", midiBuffer, "binary");
   });
   it("reads pattern and arraysEqual", async function () {
     const midiBuffer = fs.readFileSync("test.mid", "binary");
-    const [
-      gotOnsetsPattern,
-      gotVelocitiesPattern
-    ] = await readMidiFile(midiBuffer, pitchMapping);
+    const [gotOnsetsPattern, gotVelocitiesPattern] = await readMidiFile(
+      midiBuffer,
+      pitchMapping
+    );
     const expectedOnsets = Array.from(onsetsPattern.data);
     const gotOnsets = Array.from(gotOnsetsPattern.data);
     assert.ok(arraysEqual(expectedOnsets, gotOnsets));

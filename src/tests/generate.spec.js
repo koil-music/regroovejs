@@ -198,7 +198,7 @@ describe("Generator", function () {
       generator.velocities = dataMatrix;
       generator.offsets = dataMatrix;
 
-      const jsonData = await generator.encode();
+      const jsonData = await generator.toJson();
       const gotGenerator = await Generator.build(
         onsetsData,
         velocitiesData,
@@ -206,7 +206,7 @@ describe("Generator", function () {
         syncInferenceSession,
         grooveInferenceSession
       );
-      await gotGenerator.load(jsonData);
+      await gotGenerator.fromJson(jsonData);
 
       assert.ok(
         arraysEqual(
