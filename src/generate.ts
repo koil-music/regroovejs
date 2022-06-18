@@ -154,7 +154,7 @@ class Generator {
     }
   }
 
-  async load(jsonData: string): Promise<void> {
+  async fromJson(jsonData: string): Promise<void> {
     /**
      * Load the generator state, consisting of the onsetsDataMatrix, velocitiesDataMatrix,
      * offsetsDataMatrix from a JSON data string.
@@ -180,17 +180,17 @@ class Generator {
 
     for (let i = 0; i < data["length"]; i++) {
       for (let j = 0; j < data["length"]; j++) {
-        const onsetsMatrix = JSON.parse(data["onsets"]);
+        const onsetsMatrix = data["onsets"];
         const onsetsData = Float32Array.from(Object.values(onsetsMatrix[i][j]));
         onsetsDataMatrix.append(onsetsData, i, j);
 
-        const velocitiesMatrix = JSON.parse(data["onsets"]);
+        const velocitiesMatrix = data["onsets"];
         const velocitiesData = Float32Array.from(
           Object.values(velocitiesMatrix[i][j])
         );
         velocitiesDataMatrix.append(velocitiesData, i, j);
 
-        const offsetsMatrix = JSON.parse(data["onsets"]);
+        const offsetsMatrix = data["onsets"];
         const offsetsData = Float32Array.from(
           Object.values(offsetsMatrix[i][j])
         );
@@ -203,7 +203,7 @@ class Generator {
     this._offsetsDataMatrix = offsetsDataMatrix;
   }
 
-  async encode(): Promise<string> {
+  async toJson(): Promise<string> {
     /*
      * Encode the onsetsDataMatrix, velocitiesDataMatrix, offsetsDataMatrix data
      * to a JSON string along with necessary ( for PatternDataMatrix construction ) metadata
@@ -211,9 +211,9 @@ class Generator {
     const data = {
       outputShape: this.outputShape,
       length: this.onsets.length,
-      onsets: JSON.stringify(this.onsets.data),
-      velocities: JSON.stringify(this.velocities.data),
-      offsets: JSON.stringify(this.offsets.data),
+      onsets: this.onsets.data,
+      velocities: this.velocities.data,
+      offsets: this.offsets.data,
     };
     return JSON.stringify(data);
   }
