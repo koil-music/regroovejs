@@ -1,6 +1,6 @@
 {
   "name": "regroovejs",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Library providing various module for Regroove app.",
   "homepage": "https://github.com/rekoillabs/regroovejs",
   "bugs": {
@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "jzz-midi-smf": "^1.4.0",
-    "onnxruntime": "^1.7.0",
+    "onnxruntime-node": "^1.7.0",
     "onnxruntime-web": "^1.8.0"
   }
 }
