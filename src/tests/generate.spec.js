@@ -191,14 +191,22 @@ describe("Generator", function () {
         { length: LOOP_DURATION * CHANNELS },
         () => 1
       );
-      dataMatrix._T[0][0] = ones;
+      const halves = Float32Array.from(
+        { length: LOOP_DURATION * CHANNELS },
+        () => 0.42
+      );
 
       // assign different PatternDataMatrix to generator
+      dataMatrix._T[0][0] = ones;
       generator.onsets = dataMatrix;
+
+      dataMatrix._T[0][0] = halves;
       generator.velocities = dataMatrix;
+
+      dataMatrix._T[0][0] = halves;
       generator.offsets = dataMatrix;
 
-      const jsonData = await generator.toJson();
+      const data = await generator.toDict();
       const gotGenerator = await Generator.build(
         onsetsData,
         velocitiesData,
@@ -206,7 +214,7 @@ describe("Generator", function () {
         syncInferenceSession,
         grooveInferenceSession
       );
-      await gotGenerator.fromJson(jsonData);
+      await gotGenerator.fromDict(data);
 
       assert.ok(
         arraysEqual(

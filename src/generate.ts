@@ -154,7 +154,7 @@ class Generator {
     }
   }
 
-  async fromJson(jsonData: string): Promise<void> {
+  async fromDict(data: string): Promise<void> {
     /**
      * Load the generator state, consisting of the onsetsDataMatrix, velocitiesDataMatrix,
      * offsetsDataMatrix from a JSON data string.
@@ -163,8 +163,6 @@ class Generator {
      *    const jsonData = await fs.readFileAsync("/path/to/file.json", "utf-8");
      *    generator.load(jsonData)
      */
-    const data = JSON.parse(jsonData);
-
     const onsetsDataMatrix = new PatternDataMatrix(
       data["outputShape"],
       data["length"]
@@ -184,13 +182,13 @@ class Generator {
         const onsetsData = Float32Array.from(Object.values(onsetsMatrix[i][j]));
         onsetsDataMatrix.append(onsetsData, i, j);
 
-        const velocitiesMatrix = data["onsets"];
+        const velocitiesMatrix = data["velocities"];
         const velocitiesData = Float32Array.from(
           Object.values(velocitiesMatrix[i][j])
         );
         velocitiesDataMatrix.append(velocitiesData, i, j);
 
-        const offsetsMatrix = data["onsets"];
+        const offsetsMatrix = data["offsets"];
         const offsetsData = Float32Array.from(
           Object.values(offsetsMatrix[i][j])
         );
@@ -203,19 +201,37 @@ class Generator {
     this._offsetsDataMatrix = offsetsDataMatrix;
   }
 
-  async toJson(): Promise<string> {
+  async toDict(): Promise<Record<string, any>> {
     /*
      * Encode the onsetsDataMatrix, velocitiesDataMatrix, offsetsDataMatrix data
-     * to a JSON string along with necessary ( for PatternDataMatrix construction ) metadata
+     * to a JSON string along with necessary ( for PatternDataMatrix construction ) metadata. To
+     * improve performance we lossy-compress the float values in each of the arrays, the information
+     * loss here only impacts the product performance in a very minor way.
      */
+    const onsetsData = this._dataMatrixToFixed(this.onsets.data, 2)
+    const velocitiesData = this._dataMatrixToFixed(this.velocities.data, 2)
+    const offsetsData = this._dataMatrixToFixed(this.offsets.data, 2)
     const data = {
       outputShape: this.outputShape,
       length: this.onsets.length,
-      onsets: this.onsets.data,
-      velocities: this.velocities.data,
-      offsets: this.offsets.data,
+      onsets: onsetsData,
+      velocities: velocitiesData,
+      offsets: offsetsData,
     };
-    return JSON.stringify(data);
+    return data;
+  }
+
+  _dataMatrixToFixed(data: Float32Array[][], precision: number): number[][][] {
+    const M: number[][][] = []
+    for (let i = 0; i < data.length; i++) {
+      const row: number[][] = [];
+      for (let j = 0; j < data[0].length; j++) {
+        const seq = Array.from(data[i][j]).map(x => parseFloat(x.toFixed(precision)));
+        row.push(seq);
+      }
+      M.push(row);
+    }
+    return M;
   }
 
   batchedInput(onsetsPattern: Pattern, batchSize: number): Pattern {
