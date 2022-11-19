@@ -38,7 +38,7 @@
     "prettier": "2.2.1",
     "ts-loader": "^8.0.4",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.3"
+    "typescript": "<=4.5"
   },
   "dependencies": {
     "jzz-midi-smf": "^1.4.0",

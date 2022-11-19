@@ -201,7 +201,7 @@ class Generator {
     this._offsetsDataMatrix = offsetsDataMatrix;
   }
 
-  async toDict(): Promise<Record<string, any>> {
+  async toDict(): Promise<Record<string, number | number[] | number[][][]>> {
     /*
      * Encode the onsetsDataMatrix, velocitiesDataMatrix, offsetsDataMatrix data
      * to a JSON string along with necessary ( for PatternDataMatrix construction ) metadata. To
