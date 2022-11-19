@@ -1,7 +1,7 @@
 import assert from "assert";
 import { describe, it } from "mocha";
-import { Tensor } from "onnxruntime-web";
 
+import { Tensor } from "../onnxruntime";
 import { Pattern } from "../pattern";
 import { arraysEqual } from "./helpers";
 import { linspace, round, normalize, applyOnsetThreshold } from "../util";

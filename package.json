@@ -42,7 +42,6 @@
   },
   "dependencies": {
     "jzz-midi-smf": "^1.4.0",
-    "onnxruntime-node": "^1.7.0",
-    "onnxruntime-web": "^1.8.0"
+    "onnxruntime-node": "^1.7.0"
   }
 }
