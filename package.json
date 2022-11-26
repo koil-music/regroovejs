@@ -37,11 +37,12 @@
     "nyc": "^15.1.0",
     "prettier": "2.2.1",
     "ts-loader": "^8.0.4",
-    "ts-node": "^9.0.0",
+    "ts-node": "^9.1.1",
     "typescript": "<=4.5"
   },
   "dependencies": {
     "jzz-midi-smf": "^1.4.0",
-    "onnxruntime-node": "^1.7.0"
+    "onnxruntime": "onnxruntime/js/node/",
+    "onnxruntime-common": "file:onnxruntime/js/common"
   }
 }
