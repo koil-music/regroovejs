@@ -11,9 +11,9 @@
 
 </p>
 <p align="center">
-  <a href="https://www.rekoil.io/regroove">Home</a>
+  <a href="https://koil.re/regroove">Home</a>
   -
-  <a href="https://www.rekoil.io/docs/regroove">Documentation</a>
+  <a href="https://koil.re/docs/regroove">Documentation</a>
 </p>
 
 <br>
